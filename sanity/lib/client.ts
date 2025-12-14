@@ -1,8 +1,7 @@
 import { createClient, type SanityClient } from '@sanity/client'
 
-// Hardcoded values as fallback - UPDATE THESE for timber-international
-// TODO: Replace with your new Sanity project ID after creating the project
-const PROJECT_ID = 'YOUR_SANITY_PROJECT_ID'
+// Hardcoded values as fallback for timber-international
+const PROJECT_ID = 'o8zmvtbu8'
 const DATASET = 'production'
 const API_VERSION = '2024-01-01'
 
