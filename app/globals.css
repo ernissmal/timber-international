@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F5F5F0;
+  --foreground: #2B2B2B;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Moooi-inspired animations */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar (Moooi style) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F5F0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C9A961;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B8984D;
+}
