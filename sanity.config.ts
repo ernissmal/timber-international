@@ -6,8 +6,8 @@ const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'avqamki4'
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 
 export default defineConfig({
-  name: 'twg-studio',
-  title: 'TWG Landing',
+  name: 'timber-international-studio',
+  title: 'Timber International',
 
   projectId,
   dataset,

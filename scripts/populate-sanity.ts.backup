@@ -13,7 +13,7 @@ const client = createClient({
   apiVersion: '2024-01-01',
 })
 
-// Define all pages with their content blocks - CORRECTED FIELD NAMES
+// Define all pages with their content blocks
 const pages = [
   {
     _type: 'page',
@@ -29,7 +29,8 @@ const pages = [
         _type: 'hero',
         _key: 'hero-home',
         heading: 'Your supply chain doesn\'t have room for inconsistency',
-        subheading: 'Neither do we. Timber International delivers consistent quality timber at industrial scale—backed by dedicated account management and transparent supply chain operations.',
+        subheading: 'Neither do we.',
+        description: 'Timber International delivers consistent quality timber at industrial scale—backed by dedicated account management and transparent supply chain operations.',
         ctaText: 'Request a Quote',
         ctaLink: '/contact',
       },
@@ -37,7 +38,7 @@ const pages = [
         _type: 'featuresGrid',
         _key: 'features-home',
         heading: 'Why Partner With Timber International',
-        items: [
+        features: [
           {
             _key: 'feature-1',
             title: 'Industrial Capacity',
@@ -63,7 +64,7 @@ const pages = [
       {
         _type: 'stats',
         _key: 'stats-home',
-        items: [
+        stats: [
           {
             _key: 'stat-1',
             value: '99%',
@@ -90,9 +91,9 @@ const pages = [
         _type: 'cta',
         _key: 'cta-home',
         heading: 'Partner with Timber International',
-        text: 'Remove supply uncertainty from your operations. Consistent quality. Reliable delivery. Industrial capacity.',
-        buttonText: 'Contact Our B2B Team',
-        buttonLink: '/contact',
+        description: 'Remove supply uncertainty from your operations. Consistent quality. Reliable delivery. Industrial capacity.',
+        ctaText: 'Contact Our B2B Team',
+        ctaLink: '/contact',
       },
     ],
   },
@@ -110,7 +111,8 @@ const pages = [
         _type: 'hero',
         _key: 'hero-about',
         heading: 'We scaled our operations',
-        subheading: 'So you wouldn\'t have to compromise on quality. Timber International exists because businesses deserve better than the status quo.',
+        subheading: 'So you wouldn\'t have to compromise on quality',
+        description: 'Timber International exists because businesses deserve better than the status quo.',
       },
       {
         _type: 'editorialText',
@@ -128,7 +130,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'featuresGrid',
         _key: 'partnership-about',
         heading: 'The Partnership Model',
-        items: [
+        description: 'We don\'t just sell timber. We become an extension of your supply chain.',
+        features: [
           {
             _key: 'partnership-1',
             title: 'Dedicated Account Management',
@@ -173,7 +176,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'hero',
         _key: 'hero-products',
         heading: 'Specifications you can count on',
-        subheading: 'Every order. Every time. Industrial volume with precision standards. FSC-certified sourcing with full chain of custody documentation.',
+        subheading: 'Every order. Every time.',
+        description: 'Industrial volume with precision standards. FSC-certified sourcing with full chain of custody documentation.',
       },
       {
         _type: 'editorialText',
@@ -185,7 +189,7 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'featuresGrid',
         _key: 'categories-products',
         heading: 'Product Categories',
-        items: [
+        features: [
           {
             _key: 'category-1',
             title: 'Raw Timber',
@@ -207,9 +211,9 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'cta',
         _key: 'cta-products',
         heading: 'Request Product Specifications',
-        text: 'Download detailed spec sheets or discuss your specific requirements with our technical team.',
-        buttonText: 'Contact Technical Support',
-        buttonLink: '/contact',
+        description: 'Download detailed spec sheets or discuss your specific requirements with our technical team.',
+        ctaText: 'Contact Technical Support',
+        ctaLink: '/contact',
       },
     ],
   },
@@ -227,7 +231,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'hero',
         _key: 'hero-manufacturing',
         heading: 'Modern equipment',
-        subheading: 'Rigorous standards. Consistent output. Industrial-scale operations backed by precision quality systems.',
+        subheading: 'Rigorous standards. Consistent output.',
+        description: 'Industrial-scale operations backed by precision quality systems.',
       },
       {
         _type: 'editorialText',
@@ -255,7 +260,7 @@ The result? Consistent quality at volume. Every board manufactured to specificat
       {
         _type: 'stats',
         _key: 'stats-manufacturing',
-        items: [
+        stats: [
           {
             _key: 'stat-m1',
             value: 'ISO 9001',
@@ -282,9 +287,9 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'cta',
         _key: 'cta-manufacturing',
         heading: 'Schedule a Facility Tour',
-        text: 'See our manufacturing capabilities firsthand and discuss how we can support your operations.',
-        buttonText: 'Contact Us',
-        buttonLink: '/contact',
+        description: 'See our manufacturing capabilities firsthand and discuss how we can support your operations.',
+        ctaText: 'Contact Us',
+        ctaLink: '/contact',
       },
     ],
   },
@@ -302,7 +307,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _type: 'hero',
         _key: 'hero-sustainability',
         heading: 'Responsible sourcing',
-        subheading: 'With full certification and compliance. FSC-certified timber with complete chain of custody documentation.',
+        subheading: 'With full certification and compliance',
+        description: 'FSC-certified timber with complete chain of custody documentation.',
       },
       {
         _type: 'editorialText',
@@ -328,7 +334,7 @@ We provide the certifications and documentation your procurement team needs for 
         _type: 'featuresGrid',
         _key: 'standards-sustainability',
         heading: 'Standards & Certifications',
-        items: [
+        features: [
           {
             _key: 'cert-1',
             title: 'FSC Certified',
@@ -362,13 +368,13 @@ We provide the certifications and documentation your procurement team needs for 
         _type: 'hero',
         _key: 'hero-contact',
         heading: 'Let\'s discuss your requirements',
-        subheading: 'Our B2B team is ready to provide specifications, pricing, and partnership options.',
+        description: 'Our B2B team is ready to provide specifications, pricing, and partnership options.',
       },
       {
         _type: 'featuresGrid',
         _key: 'options-contact',
         heading: 'How We Can Help',
-        items: [
+        features: [
           {
             _key: 'option-1',
             title: 'Request a Quote',
@@ -426,7 +432,7 @@ async function populateSanity() {
 
     console.log('🎉 Content population complete!')
     console.log(`\n✨ Your Sanity Studio is now available at:`)
-    console.log(`   https://timber-international.sanity.studio\n`)
+    console.log(`   https://avqamki4.sanity.studio\n`)
   } catch (error: any) {
     console.error('❌ Error populating Sanity:', error.message)
     process.exit(1)
