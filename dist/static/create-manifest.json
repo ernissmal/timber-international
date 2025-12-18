@@ -1,18 +1,18 @@
 {
   "version": 3,
-  "createdAt": "2025-12-14T17:31:30.320Z",
+  "createdAt": "2025-12-18T17:37:20.037Z",
   "workspaces": [
     {
-      "name": "twg-studio",
-      "title": "TWG Landing",
+      "name": "timber-international-studio",
+      "title": "Timber International",
       "basePath": "/",
-      "projectId": "6pfau3iy",
+      "projectId": "avqamki4",
       "dataset": "production",
-      "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><rect width=\"32\" height=\"32\" rx=\"2\" fill=\"#18e2e2\"></rect><text x=\"50%\" y=\"50%\" text-anchor=\"middle\" alignment-baseline=\"middle\" fill=\"hsla(180, 81%, 9%, 1)\" style=\"font-family:Inter, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, &quot;Liberation Sans&quot;, Helvetica, Arial, system-ui, sans-serif;font-weight:500;font-size:13px;transform:translateY(1px)\">TL</text></svg>",
+      "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><rect width=\"32\" height=\"32\" rx=\"2\" fill=\"#7c1342\"></rect><text x=\"50%\" y=\"50%\" text-anchor=\"middle\" alignment-baseline=\"middle\" fill=\"hsla(333, 73%, 68%, 1)\" style=\"font-family:Inter, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, &quot;Liberation Sans&quot;, Helvetica, Arial, system-ui, sans-serif;font-weight:500;font-size:13px;transform:translateY(1px)\">TI</text></svg>",
       "mediaLibrary": {
         "enabled": false
       },
-      "schema": "8e23ba61.create-schema.json",
+      "schema": "7ee73d45.create-schema.json",
       "tools": "cfec7d1e.create-tools.json"
     }
   ],

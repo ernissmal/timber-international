@@ -11,8 +11,8 @@ export default async function ManufacturingPage() {
     <PageClient
       {...props}
       fallbackHero={{
-        heading: 'Manufacturing Excellence',
-        subheading: 'Where traditional craftsmanship meets modern technology',
+        heading: 'Production Capacity That Scales With Your Business',
+        subheading: 'State-of-the-art manufacturing facility with ISO-certified processes, documented quality control, and the flexibility to meet custom specifications.',
         size: 'small',
       }}
     />

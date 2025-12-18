@@ -11,8 +11,8 @@ export default async function AboutPage() {
     <PageClient
       {...props}
       fallbackHero={{
-        heading: 'About Us',
-        subheading: 'Our story of passion, innovation, and commitment to excellence',
+        heading: 'A Partnership-Driven Timber Manufacturer',
+        subheading: "We've built our reputation on one simple principle: your business needs a supplier who shows up. Every order. Every deadline. Every specification met.",
         size: 'small',
       }}
     />

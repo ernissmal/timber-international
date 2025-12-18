@@ -21,10 +21,10 @@ export default function HomePageClient(props: TinaPageProps) {
   return (
     <>
       <Hero
-        heading={content.hero?.heading || "Exceptional Design for Modern Living"}
-        subheading={content.hero?.subheading || "Where innovation meets craftsmanship"}
-        ctaText="Discover Our Work"
-        ctaLink="/products"
+        heading={content.hero?.heading || "Industrial Timber Supply You Can Build Your Business On"}
+        subheading={content.hero?.subheading || "Your supply chain doesn't have room for inconsistency. Precision-manufactured solid oak furniture components with documented quality standards and the capacity to scale."}
+        ctaText="Request a Quote"
+        ctaLink="/contact"
       />
 
       {/* Legacy content notice */}

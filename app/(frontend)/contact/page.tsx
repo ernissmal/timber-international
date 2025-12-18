@@ -11,8 +11,8 @@ export default async function ContactPage() {
     <PageClient
       {...props}
       fallbackHero={{
-        heading: 'Get in Touch',
-        subheading: "Let's discuss how we can bring your vision to life",
+        heading: 'Start a Partnership Conversation',
+        subheading: "Need reliable timber supply? Let's discuss your requirements, timelines, and specifications. Our B2B team responds within 24 hours.",
         size: 'small',
       }}
     />

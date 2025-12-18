@@ -11,8 +11,8 @@ export default async function SustainabilityPage() {
     <PageClient
       {...props}
       fallbackHero={{
-        heading: 'Sustainability',
-        subheading: 'Committed to a greener future through responsible practices',
+        heading: 'Certified Sustainable Operations',
+        subheading: "Sustainability isn't marketing—it's how we maintain supply chain stability. FSC certification, ISO 14001 environmental management, and full material traceability on every order.",
         size: 'small',
       }}
     />

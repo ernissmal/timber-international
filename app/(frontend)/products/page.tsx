@@ -11,8 +11,8 @@ export default async function ProductsPage() {
     <PageClient
       {...props}
       fallbackHero={{
-        heading: 'Our Products',
-        subheading: 'Discover our collection of meticulously crafted designs',
+        heading: 'Industrial Solid Oak Solutions',
+        subheading: 'Standardized furniture components manufactured to your specifications. Every piece documented, every shipment on schedule, every partnership built to last.',
         size: 'small',
       }}
     />
