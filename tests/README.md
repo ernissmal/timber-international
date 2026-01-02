@@ -47,6 +47,52 @@ Tests for Story 1-1: Navigation Anchor Links
 - Sticky navigation behavior
 - ARIA attributes update correctly
 
+### deprecated-routes.spec.ts
+
+Tests for Story 1-6: Remove Deprecated Routes
+
+**Coverage:**
+- Deprecated routes (/about, /products, /manufacturing, /sustainability, /contact) return 404
+- Root route (/) works correctly
+- Anchor navigation (/#about, /#products, etc.) works
+- Edge cases (unknown routes, nested routes)
+- File structure verification
+- Performance and UX checks
+- Regression prevention
+
+**Acceptance Criteria Mapping:**
+- AC-1: Deprecated routes return 404
+- AC-2: Root route works correctly
+- AC-3: Anchor navigation works
+- AC-4: Edge cases
+- AC-5: File structure verification
+
+### ux-polish.spec.ts
+
+Tests for Story 1-8: Smooth Scroll and UX Polish
+
+**Coverage:**
+- Smooth scroll behavior when clicking navigation links
+- CSS `scroll-behavior: smooth` property verification
+- Scroll offset prevents header overlap (scroll-margin-top: 5rem)
+- Skip-nav link accessibility (visibility on focus, keyboard navigation)
+- Reduced motion support (`prefers-reduced-motion: reduce`)
+- Animation duration reduction for accessibility
+- Cross-browser and cross-viewport compatibility
+- Performance metrics (scroll timing, CLS, sticky header)
+- Keyboard navigation and focus management
+- Edge cases (rapid clicks, back/forward buttons, non-existent hashes)
+
+**Acceptance Criteria Mapping:**
+- AC-1: Smooth scroll enabled globally via CSS
+- AC-2: Scroll offset accounts for sticky header (80px / 5rem)
+- AC-3: Reduced motion preference respected
+- AC-4: Skip navigation link for accessibility
+- AC-5: No performance jank (60fps scroll)
+- AC-6: Animations use consistent easing curve
+
+See `tests/e2e/README.md` for detailed documentation.
+
 ## Browser Support
 
 Tests run on:
