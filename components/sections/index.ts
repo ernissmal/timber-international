@@ -1,2 +1,8 @@
+export { default as HeroSection } from './HeroSection'
+export { default as AboutSection } from './AboutSection'
 export { default as OakSlabsSection } from './OakSlabsSection'
 export { default as WarehouseSection } from './WarehouseSection'
+export { default as ProductsSection } from './ProductsSection'
+export { default as ManufacturingSection } from './ManufacturingSection'
+export { default as SustainabilitySection } from './SustainabilitySection'
+export { default as ContactSection } from './ContactSection'

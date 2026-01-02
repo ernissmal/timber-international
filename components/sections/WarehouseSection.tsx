@@ -31,7 +31,7 @@ export default function WarehouseSection({ data }: WarehouseSectionProps) {
   return (
     <section id="warehouse" className="scroll-mt-20" aria-label="Warehouse">
       {data?.blocks && data.blocks.length > 0 ? (
-        <BlockRenderer blocks={data.blocks} />
+        <BlockRenderer blocks={data.blocks as any} />
       ) : (
         <div className="py-20 px-6 max-w-6xl mx-auto">
           <motion.div
