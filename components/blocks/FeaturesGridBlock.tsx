@@ -48,10 +48,10 @@ function DynamicIcon({ name, className }: { name: string; className?: string }) 
 export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
   const columns = data.columns || '3'
   const gridCols = {
-    '2': 'md:grid-cols-2',
-    '3': 'md:grid-cols-3',
-    '4': 'md:grid-cols-4',
-  }[columns] || 'md:grid-cols-3'
+    '2': 'sm:grid-cols-2',
+    '3': 'sm:grid-cols-2 lg:grid-cols-3',
+    '4': 'sm:grid-cols-2 lg:grid-cols-4',
+  }[columns] || 'sm:grid-cols-2 lg:grid-cols-3'
 
   return (
     <section className="content-block content-wide py-32">

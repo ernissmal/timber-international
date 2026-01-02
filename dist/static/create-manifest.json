@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "createdAt": "2025-12-18T17:37:20.037Z",
+  "createdAt": "2026-01-02T16:30:52.593Z",
   "workspaces": [
     {
       "name": "timber-international-studio",
@@ -12,7 +12,7 @@
       "mediaLibrary": {
         "enabled": false
       },
-      "schema": "7ee73d45.create-schema.json",
+      "schema": "6b496476.create-schema.json",
       "tools": "cfec7d1e.create-tools.json"
     }
   ],

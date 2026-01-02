@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-moooi-charcoal text-white">
       <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div>
             <h3 className="text-2xl font-display font-bold mb-4">Timber International</h3>
             <p className="text-gray-400">
