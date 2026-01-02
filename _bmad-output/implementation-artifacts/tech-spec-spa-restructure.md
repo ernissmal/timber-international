@@ -2,8 +2,10 @@
 title: 'Website SPA Restructure - MPA to Single Page Conversion'
 slug: 'spa-restructure'
 created: '2026-01-02'
+updated: '2026-01-02'
 status: 'ready-for-dev'
 stepsCompleted: [1, 2, 3, 4]
+review_status: 'adversarial-review-complete'
 tech_stack:
   - Next.js 16 (App Router)
   - React 19
@@ -29,6 +31,7 @@ files_to_create:
   - components/sections/ManufacturingSection.tsx
   - components/sections/SustainabilitySection.tsx
   - components/sections/ContactSection.tsx
+  - components/sections/index.ts
 files_to_delete:
   - app/(frontend)/about/page.tsx
   - app/(frontend)/products/page.tsx
@@ -38,21 +41,26 @@ files_to_delete:
 code_patterns:
   - BlockRenderer switches on __typename to render block components
   - lib/sanity.ts transforms _type to __typename (e.g., hero → PageBlocksHero)
-  - Framer Motion whileInView animations with staggered delays
-  - Tailwind content-block content-wide py-32 for section styling
+  - Framer Motion whileInView animations with viewport={{ once: true }}
+  - CSS scroll-behavior: smooth for native smooth scrolling
+  - scroll-margin-top: 5rem for sticky header offset
+  - IntersectionObserver with rootMargin for scroll spy
   - 'use client' directive for interactive components
-  - getPageProps(slug) → PageClient → BlockRenderer pattern
 test_patterns:
   - Manual browser testing for scroll behavior
-  - Mobile responsive testing
+  - Mobile responsive testing at 320px, 768px, 1024px, 1440px
   - Anchor link deep-linking verification
+  - Cross-browser: Chrome, Firefox, Safari, Edge
 ---
 
 # Tech-Spec: Website SPA Restructure - MPA to Single Page Conversion
 
 **Created:** 2026-01-02
-**Status:** Review
+**Updated:** 2026-01-02 (Post-Adversarial Review)
+**Status:** Ready for Development
 **Epic:** EPIC-001 (28 points, 8 stories)
+
+---
 
 ## Overview
 
@@ -71,10 +79,13 @@ Convert navigation to anchor-based links with scroll spy, consolidate all page c
 - 8 section components (Hero, About, Oak Slabs, Warehouse, Products, Manufacturing, Sustainability, Contact)
 - New Sanity page documents for Oak Slabs and Warehouse
 - Single consolidated GROQ query fetching all sections
-- Smooth scroll with 80px header offset
-- Mobile menu anchor support with auto-close
+- Smooth scroll with 80px header offset (CSS scroll-behavior: smooth)
+- Mobile menu anchor support with immediate auto-close
 - Deprecated route removal (5 page files)
 - URL hash updates on scroll/navigation
+- Initial hash scroll on page load
+- Loading states and error boundaries
+- Accessibility: skip-nav, focus management, reduced-motion support
 
 **Out of Scope:**
 - E-commerce functionality
@@ -83,6 +94,65 @@ Convert navigation to anchor-based links with scroll spy, consolidate all page c
 - Blog/News section
 - Lazy loading optimization (future enhancement)
 - Back-to-top button (future enhancement)
+
+---
+
+## Type Definitions
+
+### TypeScript Types (Add to lib/sanity.ts)
+
+```typescript
+// Block types from Sanity
+export interface SanityBlock {
+  _key: string
+  _type: string
+  __typename?: string
+  // Block-specific fields vary by type
+  [key: string]: unknown
+}
+
+// Image asset reference
+export interface SanityImageAsset {
+  _ref: string
+  _type: 'reference'
+}
+
+export interface SanityImage {
+  _type: 'image'
+  asset: SanityImageAsset | { _id: string; url: string }
+  alt?: string
+  hotspot?: { x: number; y: number; height: number; width: number }
+  crop?: { top: number; bottom: number; left: number; right: number }
+}
+
+// Page document from Sanity
+export interface SanityPage {
+  _id: string
+  _type: 'page'
+  title: string
+  slug: string
+  seoTitle?: string
+  seoDescription?: string
+  blocks: SanityBlock[]
+}
+
+// Consolidated sections data for SPA
+export interface AllSectionsData {
+  hero: SanityPage | null
+  about: SanityPage | null
+  oakSlabs: SanityPage | null
+  warehouse: SanityPage | null
+  products: SanityPage | null
+  manufacturing: SanityPage | null
+  sustainability: SanityPage | null
+  contact: SanityPage | null
+}
+
+// Section component props pattern
+export interface SectionProps {
+  data: SanityPage | null
+}
+```
 
 ---
 
@@ -95,70 +165,49 @@ Convert navigation to anchor-based links with scroll spy, consolidate all page c
 Sanity CMS → GROQ Query → lib/sanity.ts (transform _type → __typename) → BlockRenderer → Block Components
 ```
 
-**Current Navigation Structure (to be replaced):**
+**Scroll Behavior Configuration:**
+- Method: CSS `scroll-behavior: smooth` (native, accessible, no JS overhead)
+- Offset: `scroll-margin-top: 5rem` (80px = nav height h-20)
+- Easing: Browser default smooth scroll (approximately ease-out)
+- Interruption: Browser handles natively (user scroll interrupts animation)
+
+**Animation Pattern (Framer Motion):**
 ```typescript
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/products', label: 'Products' },
-  // ... route-based links
-]
+// Standard animation variant for section content
+const sectionAnimation = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-100px' },
+  transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+}
+
+// Usage: viewport.once ensures animation fires only once per session
+// viewport.margin triggers slightly before element enters view
 ```
 
-**Target Navigation Structure:**
+**IntersectionObserver Configuration Rationale:**
 ```typescript
-const navLinks = [
-  { href: '#hero', label: 'Home' },
-  { href: '#about', label: 'About' },
-  { href: '#oak-slabs', label: 'Oak Slabs' },
-  { href: '#warehouse', label: 'Warehouse' },
-  { href: '#products', label: 'Products' },
-  { href: '#manufacturing', label: 'Manufacturing' },
-  { href: '#sustainability', label: 'Sustainability' },
-  { href: '#contact', label: 'Contact' },
-]
+{
+  rootMargin: '-50% 0px -50% 0px',  // Trigger when section center hits viewport center
+  threshold: 0                       // Any intersection triggers callback
+}
+// Why -50%? Creates a "detection zone" in the middle of the viewport.
+// Section is "active" when its center crosses the viewport center.
+// This prevents rapid switching when scrolling through section boundaries.
+// Works for sections of any height because it's percentage-based.
 ```
-
-**Animation Pattern (from FeaturesGridBlock):**
-```typescript
-<motion.div
-  initial={{ opacity: 0, y: 40 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  viewport={{ once: true }}
-  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
->
-```
-
-**Section Styling Pattern:**
-```typescript
-<section id="section-name" className="scroll-mt-20">
-  {/* content */}
-</section>
-```
-
-### Files to Reference
-
-| File | Purpose | Key Code |
-| ---- | ------- | -------- |
-| `components/Navigation.tsx` | Current nav (71 lines) | Route-based links, mobile menu state |
-| `components/Footer.tsx` | Footer links (46 lines) | 4-column grid, route-based links |
-| `components/blocks/BlockRenderer.tsx` | Block switch (60 lines) | `__typename` switching pattern |
-| `components/blocks/FeaturesGridBlock.tsx` | Animation example (173 lines) | Framer Motion whileInView |
-| `lib/sanity.ts` | Sanity fetching (163 lines) | `transformSanityBlocks()`, type mapping |
-| `sanity/lib/queries.ts` | GROQ queries (106 lines) | `pageBySlugQuery` pattern |
-| `app/globals.css` | Global styles (56 lines) | `scroll-behavior: smooth` already present |
-| `components/Hero.tsx` | Hero component (57 lines) | Gradient background, CTA button |
 
 ### Technical Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Content Source for New Sections | Create Sanity page documents | Consistent with existing content management pattern |
-| Scroll Spy | Full IntersectionObserver implementation | Story 1 AC requires active section highlighting |
-| Fetching Strategy | Single consolidated GROQ query | Reduces network requests, ensures atomic data load |
-| Section Component Pattern | Wrapper with id + BlockRenderer | Reuses existing block system, minimal new code |
-| Anchor Link Format | `#section-id` | Standard HTML anchors, browser native support |
-| Scroll Offset | 80px (matches nav height h-20) | Prevents content hiding under sticky nav |
+| Scroll Method | CSS `scroll-behavior: smooth` | Native, accessible, respects `prefers-reduced-motion`, no JS |
+| Scroll Spy | IntersectionObserver with -50% rootMargin | Center detection, percentage-based works for any section height |
+| Race Condition Fix | useEffect with cleanup, null checks | Observer only created after client-side hydration |
+| Error Handling | Graceful fallback in each section | Single query failure doesn't crash entire page |
+| Animation Trigger | `viewport: { once: true }` | Animations fire once per session, not on every scroll |
+| Mobile Menu Close | Immediate `setIsOpen(false)` | No delay, menu closes before scroll begins |
+| Hash on Load | useEffect checks `window.location.hash` | Scrolls to section after hydration |
 
 ---
 
@@ -172,71 +221,213 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 ### Phase 1: Infrastructure Setup
 
-#### Task 1: Add Scroll Offset CSS
+#### Task 1: Add Scroll Offset and Accessibility CSS
 - **File:** `app/globals.css`
-- **Action:** Add scroll-margin-top rule for sections
+- **Action:** Add scroll-margin-top, skip-nav, and reduced-motion support
 - **Code to add:**
   ```css
-  /* Scroll offset for sticky header */
+  /* Scroll offset for sticky header (80px = h-20) */
   section[id] {
-    scroll-margin-top: 5rem; /* 80px = h-20 */
+    scroll-margin-top: 5rem;
+  }
+
+  /* Skip navigation link for accessibility */
+  .skip-nav {
+    position: absolute;
+    left: -9999px;
+    z-index: 100;
+    padding: 1rem;
+    background: white;
+    color: black;
+    text-decoration: underline;
+  }
+
+  .skip-nav:focus {
+    left: 0;
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
   ```
-- **Notes:** This ensures anchored sections don't hide behind the sticky nav
 
 ---
 
 #### Task 2: Create Consolidated GROQ Query
 - **File:** `sanity/lib/queries.ts`
-- **Action:** Add new `allSectionsQuery` that fetches all page content in one request
+- **Action:** Add new `allSectionsQuery` with complete field specifications
 - **Code to add:**
   ```typescript
+  // Reusable block projection - matches existing pageBySlugQuery pattern
+  const blockProjection = `{
+    _type,
+    _key,
+    heading,
+    subheading,
+    text,
+    content,
+    eyebrow,
+    alignment,
+    backgroundColor,
+    buttonText,
+    buttonLink,
+    stats,
+    quote,
+    author,
+    role,
+    backgroundImage {
+      _type,
+      asset->{
+        _id,
+        url,
+        metadata { dimensions, lqip }
+      },
+      alt,
+      hotspot,
+      crop
+    },
+    image {
+      _type,
+      asset->{
+        _id,
+        url,
+        metadata { dimensions, lqip }
+      },
+      alt,
+      hotspot,
+      crop
+    },
+    items[] {
+      _key,
+      title,
+      description,
+      icon,
+      stat,
+      label,
+      image {
+        _type,
+        asset->{
+          _id,
+          url,
+          metadata { dimensions, lqip }
+        },
+        alt
+      }
+    }
+  }`
+
   // Consolidated query for SPA - fetches all sections at once
   export const allSectionsQuery = groq`{
     "hero": *[_type == "page" && slug.current == "home"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "about": *[_type == "page" && slug.current == "about"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "oakSlabs": *[_type == "page" && slug.current == "oak-slabs"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "warehouse": *[_type == "page" && slug.current == "warehouse"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "products": *[_type == "page" && slug.current == "products"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "manufacturing": *[_type == "page" && slug.current == "manufacturing"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "sustainability": *[_type == "page" && slug.current == "sustainability"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     },
     "contact": *[_type == "page" && slug.current == "contact"][0] {
-      _id, title, "slug": slug.current,
-      blocks[] { _type, _key, ..., backgroundImage { ..., asset-> }, image { ..., asset-> }, items[] { ..., image { ..., asset-> } } }
+      _id,
+      _type,
+      title,
+      "slug": slug.current,
+      seoTitle,
+      seoDescription,
+      blocks[] ${blockProjection}
     }
   }`
   ```
-- **Notes:** Each section is fetched by its slug, returns null if page doesn't exist yet
 
 ---
 
-#### Task 3: Add Consolidated Fetch Function
+#### Task 3: Add Consolidated Fetch Function with Error Handling
 - **File:** `lib/sanity.ts`
-- **Action:** Add `getAllSections()` function that uses the consolidated query
+- **Action:** Add `getAllSections()` function with proper error handling
 - **Code to add:**
   ```typescript
   import { allSectionsQuery } from '@/sanity/lib/queries'
+
+  // Type definitions (add near top of file with other types)
+  export interface SanityBlock {
+    _key: string
+    _type: string
+    __typename?: string
+    [key: string]: unknown
+  }
+
+  export interface SanityPage {
+    _id: string
+    _type: 'page'
+    title: string
+    slug: string
+    seoTitle?: string
+    seoDescription?: string
+    blocks: SanityBlock[]
+  }
 
   export interface AllSectionsData {
     hero: SanityPage | null
@@ -249,31 +440,59 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     contact: SanityPage | null
   }
 
+  // Empty sections data for error fallback
+  const emptySections: AllSectionsData = {
+    hero: null,
+    about: null,
+    oakSlabs: null,
+    warehouse: null,
+    products: null,
+    manufacturing: null,
+    sustainability: null,
+    contact: null,
+  }
+
+  /**
+   * Fetches all section data for the SPA in a single query.
+   * Returns null for any section that doesn't exist in Sanity.
+   * On complete failure, returns empty sections object (all null).
+   */
   export async function getAllSections(): Promise<AllSectionsData> {
     try {
-      const data = await client.fetch<AllSectionsData>(allSectionsQuery)
+      const data = await client.fetch<AllSectionsData>(allSectionsQuery, {}, {
+        next: { revalidate: 60 } // Revalidate every 60 seconds
+      })
 
-      // Transform blocks for each section
+      if (!data) {
+        console.warn('getAllSections: No data returned from Sanity')
+        return emptySections
+      }
+
+      // Transform blocks for each section that exists
+      const transformSection = (section: SanityPage | null): SanityPage | null => {
+        if (!section) return null
+        return {
+          ...section,
+          blocks: section.blocks ? transformSanityBlocks(section.blocks) : []
+        }
+      }
+
       return {
-        hero: data.hero ? { ...data.hero, blocks: transformSanityBlocks(data.hero.blocks) } : null,
-        about: data.about ? { ...data.about, blocks: transformSanityBlocks(data.about.blocks) } : null,
-        oakSlabs: data.oakSlabs ? { ...data.oakSlabs, blocks: transformSanityBlocks(data.oakSlabs.blocks) } : null,
-        warehouse: data.warehouse ? { ...data.warehouse, blocks: transformSanityBlocks(data.warehouse.blocks) } : null,
-        products: data.products ? { ...data.products, blocks: transformSanityBlocks(data.products.blocks) } : null,
-        manufacturing: data.manufacturing ? { ...data.manufacturing, blocks: transformSanityBlocks(data.manufacturing.blocks) } : null,
-        sustainability: data.sustainability ? { ...data.sustainability, blocks: transformSanityBlocks(data.sustainability.blocks) } : null,
-        contact: data.contact ? { ...data.contact, blocks: transformSanityBlocks(data.contact.blocks) } : null,
+        hero: transformSection(data.hero),
+        about: transformSection(data.about),
+        oakSlabs: transformSection(data.oakSlabs),
+        warehouse: transformSection(data.warehouse),
+        products: transformSection(data.products),
+        manufacturing: transformSection(data.manufacturing),
+        sustainability: transformSection(data.sustainability),
+        contact: transformSection(data.contact),
       }
     } catch (error) {
-      console.error('Error fetching all sections:', error)
-      return {
-        hero: null, about: null, oakSlabs: null, warehouse: null,
-        products: null, manufacturing: null, sustainability: null, contact: null
-      }
+      console.error('getAllSections: Error fetching sections:', error)
+      return emptySections
     }
   }
   ```
-- **Notes:** Each section can be null if the Sanity page doesn't exist yet
 
 ---
 
@@ -287,7 +506,6 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 5: Create HeroSection Component
 - **File:** `components/sections/HeroSection.tsx`
-- **Action:** Create wrapper component with id="hero"
 - **Code:**
   ```typescript
   'use client'
@@ -302,7 +520,7 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
   export default function HeroSection({ data }: HeroSectionProps) {
     return (
-      <section id="hero" className="scroll-mt-20">
+      <section id="hero" className="scroll-mt-20" aria-label="Hero">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
@@ -317,17 +535,16 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     )
   }
   ```
-- **Notes:** Fallback content if Sanity data is unavailable
 
 ---
 
 #### Task 6: Create AboutSection Component
 - **File:** `components/sections/AboutSection.tsx`
-- **Action:** Create wrapper component with id="about"
 - **Code:**
   ```typescript
   'use client'
 
+  import { motion } from 'framer-motion'
   import { BlockRenderer } from '@/components/blocks'
   import type { SanityPage } from '@/lib/sanity'
 
@@ -337,15 +554,26 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
   export default function AboutSection({ data }: AboutSectionProps) {
     return (
-      <section id="about" className="scroll-mt-20">
+      <section id="about" className="scroll-mt-20" aria-label="About Us">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
           <div className="py-20 px-6 max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-display font-bold mb-6">About Timber International</h2>
-            <p className="text-xl text-moooi-slate">
-              A partnership-driven timber manufacturer committed to reliability and quality.
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+                About Timber International
+              </h2>
+              <p className="text-xl text-moooi-slate">
+                A partnership-driven timber manufacturer committed to reliability and quality.
+                We scaled our operations to meet industrial demand while maintaining
+                the craftsmanship standards our partners depend on.
+              </p>
+            </motion.div>
           </div>
         )}
       </section>
@@ -357,7 +585,6 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 7: Create OakSlabsSection Component (NEW)
 - **File:** `components/sections/OakSlabsSection.tsx`
-- **Action:** Create new section component with id="oak-slabs"
 - **Code:**
   ```typescript
   'use client'
@@ -370,9 +597,26 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     data: SanityPage | null
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+    }
+  }
+
   export default function OakSlabsSection({ data }: OakSlabsSectionProps) {
     return (
-      <section id="oak-slabs" className="scroll-mt-20 bg-moooi-sand">
+      <section id="oak-slabs" className="scroll-mt-20 bg-moooi-sand" aria-label="Oak Slabs">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
@@ -380,31 +624,62 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: '-100px' }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-center"
+              className="text-center mb-16"
             >
               <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
                 Solid Oak. Industrial Scale.
               </h2>
-              <p className="text-xl text-moooi-slate mb-12 max-w-3xl mx-auto">
+              <p className="text-xl text-moooi-slate max-w-3xl mx-auto">
                 Premium solid oak slabs manufactured to your specifications.
                 Consistent quality, reliable supply, competitive pricing.
               </p>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-white p-8 rounded-2xl">
-                  <h3 className="text-2xl font-bold mb-4">Custom Dimensions</h3>
-                  <p className="text-moooi-slate">Cut to your exact specifications with precision machinery.</p>
-                </div>
-                <div className="bg-white p-8 rounded-2xl">
-                  <h3 className="text-2xl font-bold mb-4">Kiln Dried</h3>
-                  <p className="text-moooi-slate">Moisture content controlled for stability and longevity.</p>
-                </div>
-                <div className="bg-white p-8 rounded-2xl">
-                  <h3 className="text-2xl font-bold mb-4">FSC Certified</h3>
-                  <p className="text-moooi-slate">Responsibly sourced from sustainable European forests.</p>
-                </div>
-              </div>
+            </motion.div>
+
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              className="grid md:grid-cols-3 gap-8"
+            >
+              <motion.div variants={itemVariants} className="bg-white p-8 rounded-2xl shadow-sm">
+                <h3 className="text-2xl font-bold mb-4">Custom Dimensions</h3>
+                <p className="text-moooi-slate">
+                  Cut to your exact specifications with precision CNC machinery.
+                  Tolerances within ±0.5mm.
+                </p>
+              </motion.div>
+              <motion.div variants={itemVariants} className="bg-white p-8 rounded-2xl shadow-sm">
+                <h3 className="text-2xl font-bold mb-4">Kiln Dried</h3>
+                <p className="text-moooi-slate">
+                  Moisture content controlled to 8-12% for stability and longevity.
+                  Documented drying records available.
+                </p>
+              </motion.div>
+              <motion.div variants={itemVariants} className="bg-white p-8 rounded-2xl shadow-sm">
+                <h3 className="text-2xl font-bold mb-4">FSC Certified</h3>
+                <p className="text-moooi-slate">
+                  Responsibly sourced from sustainable European forests.
+                  Chain of custody documentation provided.
+                </p>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-center mt-12"
+            >
+              <a
+                href="#contact"
+                className="inline-block bg-moooi-gold text-white px-8 py-4 rounded-full font-medium hover:bg-moooi-gold/90 transition-colors"
+              >
+                Request Specifications
+              </a>
             </motion.div>
           </div>
         )}
@@ -412,28 +687,45 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     )
   }
   ```
-- **Notes:** Fallback content showcases key product features; will be replaced by Sanity content
 
 ---
 
 #### Task 8: Create WarehouseSection Component (NEW)
 - **File:** `components/sections/WarehouseSection.tsx`
-- **Action:** Create new section component with id="warehouse"
 - **Code:**
   ```typescript
   'use client'
 
   import { motion } from 'framer-motion'
   import { BlockRenderer } from '@/components/blocks'
+  import { Warehouse, Truck, Clock } from 'lucide-react'
   import type { SanityPage } from '@/lib/sanity'
 
   interface WarehouseSectionProps {
     data: SanityPage | null
   }
 
+  const features = [
+    {
+      icon: Warehouse,
+      title: '10,000m² Storage',
+      description: 'Climate-controlled facilities for optimal timber preservation.'
+    },
+    {
+      icon: Truck,
+      title: 'Pan-European Delivery',
+      description: 'Reliable logistics network covering all major markets.'
+    },
+    {
+      icon: Clock,
+      title: '48-Hour Dispatch',
+      description: 'In-stock items shipped within 2 business days.'
+    }
+  ]
+
   export default function WarehouseSection({ data }: WarehouseSectionProps) {
     return (
-      <section id="warehouse" className="scroll-mt-20">
+      <section id="warehouse" className="scroll-mt-20" aria-label="Warehouse">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
@@ -441,18 +733,35 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: '-100px' }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-center"
+              className="text-center mb-16"
             >
               <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
                 Storage & Logistics Excellence
               </h2>
-              <p className="text-xl text-moooi-slate mb-8 max-w-3xl mx-auto">
+              <p className="text-xl text-moooi-slate max-w-3xl mx-auto">
                 Modern warehouse facilities ensure your timber is stored properly
                 and shipped efficiently to meet your production schedules.
               </p>
             </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.15 }}
+                  className="text-center p-8"
+                >
+                  <feature.icon className="w-12 h-12 mx-auto mb-4 text-moooi-gold" />
+                  <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                  <p className="text-moooi-slate">{feature.description}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
       </section>
@@ -464,11 +773,11 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 9: Create ProductsSection Component
 - **File:** `components/sections/ProductsSection.tsx`
-- **Action:** Create wrapper component with id="products"
 - **Code:**
   ```typescript
   'use client'
 
+  import { motion } from 'framer-motion'
   import { BlockRenderer } from '@/components/blocks'
   import type { SanityPage } from '@/lib/sanity'
 
@@ -478,15 +787,25 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
   export default function ProductsSection({ data }: ProductsSectionProps) {
     return (
-      <section id="products" className="scroll-mt-20 bg-moooi-cream">
+      <section id="products" className="scroll-mt-20 bg-moooi-cream" aria-label="Products">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
           <div className="py-20 px-6 max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-display font-bold mb-6">Our Products</h2>
-            <p className="text-xl text-moooi-slate">
-              Industrial solid oak solutions manufactured to your specifications.
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+                Specifications You Can Count On
+              </h2>
+              <p className="text-xl text-moooi-slate">
+                Industrial solid oak solutions manufactured to your specifications.
+                Table tops, panels, furniture components, and custom orders.
+              </p>
+            </motion.div>
           </div>
         )}
       </section>
@@ -498,11 +817,11 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 10: Create ManufacturingSection Component
 - **File:** `components/sections/ManufacturingSection.tsx`
-- **Action:** Create wrapper component with id="manufacturing"
 - **Code:**
   ```typescript
   'use client'
 
+  import { motion } from 'framer-motion'
   import { BlockRenderer } from '@/components/blocks'
   import type { SanityPage } from '@/lib/sanity'
 
@@ -512,15 +831,25 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
   export default function ManufacturingSection({ data }: ManufacturingSectionProps) {
     return (
-      <section id="manufacturing" className="scroll-mt-20">
+      <section id="manufacturing" className="scroll-mt-20" aria-label="Manufacturing">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
           <div className="py-20 px-6 max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-display font-bold mb-6">Manufacturing Excellence</h2>
-            <p className="text-xl text-moooi-slate">
-              Modern equipment and rigorous quality standards.
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+                Modern Equipment. Rigorous Standards.
+              </h2>
+              <p className="text-xl text-moooi-slate">
+                State-of-the-art CNC machinery and quality control processes
+                ensure every piece meets your specifications.
+              </p>
+            </motion.div>
           </div>
         )}
       </section>
@@ -532,11 +861,11 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 11: Create SustainabilitySection Component
 - **File:** `components/sections/SustainabilitySection.tsx`
-- **Action:** Create wrapper component with id="sustainability"
 - **Code:**
   ```typescript
   'use client'
 
+  import { motion } from 'framer-motion'
   import { BlockRenderer } from '@/components/blocks'
   import type { SanityPage } from '@/lib/sanity'
 
@@ -546,15 +875,36 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
   export default function SustainabilitySection({ data }: SustainabilitySectionProps) {
     return (
-      <section id="sustainability" className="scroll-mt-20 bg-moooi-sand">
+      <section id="sustainability" className="scroll-mt-20 bg-moooi-sand" aria-label="Sustainability">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
           <div className="py-20 px-6 max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-display font-bold mb-6">Sustainable Practices</h2>
-            <p className="text-xl text-moooi-slate">
-              FSC certified timber from responsibly managed forests.
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+                Responsible Sourcing
+              </h2>
+              <p className="text-xl text-moooi-slate mb-8">
+                FSC certified timber from responsibly managed forests.
+                Complete chain of custody documentation for compliance requirements.
+              </p>
+              <div className="flex justify-center gap-8 flex-wrap">
+                <div className="bg-white px-6 py-3 rounded-full font-medium">
+                  FSC Certified
+                </div>
+                <div className="bg-white px-6 py-3 rounded-full font-medium">
+                  PEFC Available
+                </div>
+                <div className="bg-white px-6 py-3 rounded-full font-medium">
+                  EU Timber Regulation
+                </div>
+              </div>
+            </motion.div>
           </div>
         )}
       </section>
@@ -566,11 +916,11 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 12: Create ContactSection Component
 - **File:** `components/sections/ContactSection.tsx`
-- **Action:** Create wrapper component with id="contact"
 - **Code:**
   ```typescript
   'use client'
 
+  import { motion } from 'framer-motion'
   import { BlockRenderer } from '@/components/blocks'
   import ContactForm from '@/components/ContactForm'
   import type { SanityPage } from '@/lib/sanity'
@@ -581,16 +931,25 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
   export default function ContactSection({ data }: ContactSectionProps) {
     return (
-      <section id="contact" className="scroll-mt-20">
+      <section id="contact" className="scroll-mt-20" aria-label="Contact">
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
           <div className="py-20 px-6 max-w-4xl mx-auto">
-            <h2 className="text-4xl font-display font-bold mb-6 text-center">Contact Us</h2>
-            <p className="text-xl text-moooi-slate mb-12 text-center">
-              Let's discuss your timber requirements.
-            </p>
-            <ContactForm />
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6 text-center">
+                Let's Discuss Your Requirements
+              </h2>
+              <p className="text-xl text-moooi-slate mb-12 text-center">
+                Tell us about your project and we'll prepare a detailed quote.
+              </p>
+              <ContactForm />
+            </motion.div>
           </div>
         )}
       </section>
@@ -602,7 +961,6 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 13: Create Sections Index Export
 - **File:** `components/sections/index.ts`
-- **Action:** Create barrel export for all section components
 - **Code:**
   ```typescript
   export { default as HeroSection } from './HeroSection'
@@ -619,15 +977,15 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 ### Phase 3: Navigation Updates
 
-#### Task 14: Update Navigation Component
+#### Task 14: Update Navigation Component (Complete Implementation)
 - **File:** `components/Navigation.tsx`
-- **Action:** Replace route-based links with anchor links, add scroll spy
-- **Full replacement code:**
+- **Action:** Full replacement with anchor links, scroll spy, and accessibility
+- **Complete Code:**
   ```typescript
   'use client'
 
-  import Link from 'next/link'
-  import { useState, useEffect } from 'react'
+  import { useState, useEffect, useCallback } from 'react'
+  import { Menu, X } from 'lucide-react'
 
   const navLinks = [
     { href: '#hero', label: 'Home' },
@@ -643,114 +1001,220 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
   export default function Navigation() {
     const [isOpen, setIsOpen] = useState(false)
     const [activeSection, setActiveSection] = useState('hero')
+    const [isClient, setIsClient] = useState(false)
+
+    // Handle initial hash scroll after hydration
+    useEffect(() => {
+      setIsClient(true)
+
+      // Check for hash in URL on load
+      const hash = window.location.hash
+      if (hash) {
+        // Small delay to ensure sections are mounted
+        setTimeout(() => {
+          const element = document.querySelector(hash)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' })
+            setActiveSection(hash.slice(1))
+          }
+        }, 100)
+      }
+    }, [])
 
     // Scroll spy using IntersectionObserver
     useEffect(() => {
-      const sections = navLinks.map(link =>
-        document.querySelector(link.href) as HTMLElement
-      ).filter(Boolean)
+      if (!isClient) return
+
+      // Get all section elements
+      const sectionIds = navLinks.map(link => link.href.slice(1))
+      const sections = sectionIds
+        .map(id => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null)
+
+      if (sections.length === 0) return
 
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              setActiveSection(entry.target.id)
-              // Update URL hash without scrolling
-              window.history.replaceState(null, '', `#${entry.target.id}`)
+              const newSection = entry.target.id
+              setActiveSection(newSection)
+
+              // Update URL hash without triggering scroll
+              const currentHash = window.location.hash.slice(1)
+              if (currentHash !== newSection) {
+                window.history.replaceState(null, '', `#${newSection}`)
+              }
             }
           })
         },
         {
+          // Trigger when section center hits viewport center
+          // -50% from top and bottom creates center detection zone
           rootMargin: '-50% 0px -50% 0px',
           threshold: 0
         }
       )
 
       sections.forEach((section) => observer.observe(section))
-      return () => observer.disconnect()
+
+      return () => {
+        observer.disconnect()
+      }
+    }, [isClient])
+
+    // Handle navigation click
+    const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      // Close mobile menu immediately
+      setIsOpen(false)
+
+      // Update active section immediately for responsiveness
+      setActiveSection(href.slice(1))
     }, [])
 
-    const handleNavClick = (href: string) => {
-      setIsOpen(false) // Close mobile menu
-    }
+    // Close mobile menu on escape key
+    useEffect(() => {
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setIsOpen(false)
+      }
+
+      if (isOpen) {
+        document.addEventListener('keydown', handleEscape)
+        // Prevent body scroll when menu is open
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = ''
+      }
+
+      return () => {
+        document.removeEventListener('keydown', handleEscape)
+        document.body.style.overflow = ''
+      }
+    }, [isOpen])
 
     return (
-      <nav className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-moooi-sand">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-center h-20">
-            <Link href="#hero" className="text-2xl font-display font-bold">
-              Timber International
-            </Link>
+      <>
+        {/* Skip Navigation Link */}
+        <a href="#hero" className="skip-nav">
+          Skip to main content
+        </a>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => handleNavClick(link.href)}
-                  className={`transition-colors duration-200 ${
-                    activeSection === link.href.slice(1)
-                      ? 'text-moooi-gold font-medium'
-                      : 'text-moooi-charcoal hover:text-moooi-gold'
-                  }`}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
+        <nav
+          className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-moooi-sand"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex justify-between items-center h-20">
+              {/* Logo */}
+              <a
+                href="#hero"
+                className="text-2xl font-display font-bold text-moooi-charcoal hover:text-moooi-gold transition-colors"
+                onClick={(e) => handleNavClick(e, '#hero')}
+              >
+                Timber International
+              </a>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2"
-              aria-label="Toggle menu"
-            >
-              <div className="w-6 h-5 flex flex-col justify-between">
-                <span className={`w-full h-0.5 bg-moooi-charcoal transition-transform ${isOpen ? 'rotate-45 translate-y-2' : ''}`} />
-                <span className={`w-full h-0.5 bg-moooi-charcoal transition-opacity ${isOpen ? 'opacity-0' : ''}`} />
-                <span className={`w-full h-0.5 bg-moooi-charcoal transition-transform ${isOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-8">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className={`text-sm font-medium transition-colors duration-200 ${
+                      activeSection === link.href.slice(1)
+                        ? 'text-moooi-gold'
+                        : 'text-moooi-charcoal hover:text-moooi-gold'
+                    }`}
+                    aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                ))}
               </div>
-            </button>
-          </div>
 
-          {/* Mobile Navigation */}
-          {isOpen && (
-            <div className="md:hidden py-4 border-t border-moooi-sand">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => handleNavClick(link.href)}
-                  className={`block py-3 transition-colors ${
-                    activeSection === link.href.slice(1)
-                      ? 'text-moooi-gold font-medium'
-                      : 'text-moooi-charcoal hover:text-moooi-gold'
-                  }`}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="md:hidden p-2 text-moooi-charcoal hover:text-moooi-gold transition-colors"
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isOpen}
+                aria-controls="mobile-menu"
+              >
+                {isOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
             </div>
-          )}
-        </div>
-      </nav>
+
+            {/* Mobile Navigation */}
+            {isOpen && (
+              <div
+                id="mobile-menu"
+                className="md:hidden py-4 border-t border-moooi-sand"
+                role="menu"
+              >
+                {navLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className={`block py-3 text-lg transition-colors ${
+                      activeSection === link.href.slice(1)
+                        ? 'text-moooi-gold font-medium'
+                        : 'text-moooi-charcoal hover:text-moooi-gold'
+                    }`}
+                    role="menuitem"
+                    aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Mobile menu backdrop */}
+        {isOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black/20 z-40"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+      </>
     )
   }
   ```
-- **Notes:** Changed `Link` to `<a>` for anchor links, added scroll spy with IntersectionObserver
 
 ---
 
 #### Task 15: Update Footer Component
 - **File:** `components/Footer.tsx`
 - **Action:** Replace route-based links with anchor links
-- **Changes:**
-  - Replace `<Link href="/about">` with `<a href="#about">`
-  - Replace `<Link href="/manufacturing">` with `<a href="#manufacturing">`
-  - Replace `<Link href="/sustainability">` with `<a href="#sustainability">`
-  - Replace `<Link href="/products">` with `<a href="#products">`
-  - Replace `<Link href="/contact">` with `<a href="#contact">`
+- **Changes to make (find and replace):**
+  ```typescript
+  // Replace these Link imports and usages with anchor tags:
+
+  // FROM:
+  import Link from 'next/link'
+  <Link href="/about">About</Link>
+  <Link href="/manufacturing">Manufacturing</Link>
+  <Link href="/sustainability">Sustainability</Link>
+  <Link href="/products">Products</Link>
+  <Link href="/contact">Contact</Link>
+
+  // TO:
+  <a href="#about" className="hover:text-moooi-gold transition-colors">About</a>
+  <a href="#manufacturing" className="hover:text-moooi-gold transition-colors">Manufacturing</a>
+  <a href="#sustainability" className="hover:text-moooi-gold transition-colors">Sustainability</a>
+  <a href="#products" className="hover:text-moooi-gold transition-colors">Products</a>
+  <a href="#contact" className="hover:text-moooi-gold transition-colors">Contact</a>
+  ```
 
 ---
 
@@ -759,16 +1223,35 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 #### Task 16: Update Main Page Server Component
 - **File:** `app/(frontend)/page.tsx`
 - **Action:** Fetch all sections using consolidated query
-- **Full replacement code:**
+- **Complete Code:**
   ```typescript
+  import { Suspense } from 'react'
   import { getAllSections } from '@/lib/sanity'
   import SPAPageClient from './page-client'
 
-  export const dynamic = 'force-dynamic'
+  // Revalidate every 60 seconds
+  export const revalidate = 60
+
+  // Loading skeleton for sections
+  function SectionsLoading() {
+    return (
+      <div className="animate-pulse">
+        <div className="h-screen bg-moooi-cream" />
+        <div className="h-96 bg-white" />
+        <div className="h-96 bg-moooi-sand" />
+        <div className="h-96 bg-white" />
+      </div>
+    )
+  }
 
   export default async function HomePage() {
     const sections = await getAllSections()
-    return <SPAPageClient sections={sections} />
+
+    return (
+      <Suspense fallback={<SectionsLoading />}>
+        <SPAPageClient sections={sections} />
+      </Suspense>
+    )
   }
   ```
 
@@ -776,11 +1259,12 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 17: Update Main Page Client Component
 - **File:** `app/(frontend)/page-client.tsx`
-- **Action:** Render all sections sequentially
-- **Full replacement code:**
+- **Action:** Render all sections sequentially with error boundary
+- **Complete Code:**
   ```typescript
   'use client'
 
+  import { Component, ReactNode } from 'react'
   import {
     HeroSection,
     AboutSection,
@@ -793,6 +1277,47 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
   } from '@/components/sections'
   import type { AllSectionsData } from '@/lib/sanity'
 
+  // Error boundary for section failures
+  interface ErrorBoundaryProps {
+    children: ReactNode
+    fallback: ReactNode
+  }
+
+  interface ErrorBoundaryState {
+    hasError: boolean
+  }
+
+  class SectionErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+    constructor(props: ErrorBoundaryProps) {
+      super(props)
+      this.state = { hasError: false }
+    }
+
+    static getDerivedStateFromError(): ErrorBoundaryState {
+      return { hasError: true }
+    }
+
+    componentDidCatch(error: Error) {
+      console.error('Section render error:', error)
+    }
+
+    render() {
+      if (this.state.hasError) {
+        return this.props.fallback
+      }
+      return this.props.children
+    }
+  }
+
+  // Fallback for section errors
+  function SectionFallback({ name }: { name: string }) {
+    return (
+      <section className="py-20 px-6 text-center bg-moooi-cream">
+        <p className="text-moooi-slate">Unable to load {name} section.</p>
+      </section>
+    )
+  }
+
   interface SPAPageClientProps {
     sections: AllSectionsData
   }
@@ -800,14 +1325,37 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
   export default function SPAPageClient({ sections }: SPAPageClientProps) {
     return (
       <main>
-        <HeroSection data={sections.hero} />
-        <AboutSection data={sections.about} />
-        <OakSlabsSection data={sections.oakSlabs} />
-        <WarehouseSection data={sections.warehouse} />
-        <ProductsSection data={sections.products} />
-        <ManufacturingSection data={sections.manufacturing} />
-        <SustainabilitySection data={sections.sustainability} />
-        <ContactSection data={sections.contact} />
+        <SectionErrorBoundary fallback={<SectionFallback name="Hero" />}>
+          <HeroSection data={sections.hero} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="About" />}>
+          <AboutSection data={sections.about} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="Oak Slabs" />}>
+          <OakSlabsSection data={sections.oakSlabs} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="Warehouse" />}>
+          <WarehouseSection data={sections.warehouse} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="Products" />}>
+          <ProductsSection data={sections.products} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="Manufacturing" />}>
+          <ManufacturingSection data={sections.manufacturing} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="Sustainability" />}>
+          <SustainabilitySection data={sections.sustainability} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary fallback={<SectionFallback name="Contact" />}>
+          <ContactSection data={sections.contact} />
+        </SectionErrorBoundary>
       </main>
     )
   }
@@ -820,19 +1368,23 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 #### Task 18: Create Oak Slabs Page in Sanity
 - **Action:** Use Sanity Studio to create new page document
 - **Document values:**
-  - Title: "Oak Slabs"
-  - Slug: "oak-slabs"
-  - Blocks: Add hero block + features grid with oak slab content
-- **Notes:** Can also use populate script if available
+  - **Title:** "Oak Slabs"
+  - **Slug:** `oak-slabs`
+  - **SEO Title:** "Solid Oak Slabs - Industrial Scale Manufacturing | Timber International"
+  - **SEO Description:** "Premium solid oak slabs manufactured to your specifications. Custom dimensions, kiln dried, FSC certified. Request a quote today."
+  - **Blocks:** Add hero block + features grid with oak slab content
+- **Alternative:** Run Sanity CLI to create programmatically
 
 ---
 
 #### Task 19: Create Warehouse Page in Sanity
 - **Action:** Use Sanity Studio to create new page document
 - **Document values:**
-  - Title: "Warehouse"
-  - Slug: "warehouse"
-  - Blocks: Add content blocks for warehouse section
+  - **Title:** "Warehouse"
+  - **Slug:** `warehouse`
+  - **SEO Title:** "Warehouse & Logistics | Timber International"
+  - **SEO Description:** "10,000m² climate-controlled storage facilities. Pan-European delivery with 48-hour dispatch for in-stock items."
+  - **Blocks:** Add content blocks for warehouse section
 - **Notes:** Content can be updated later via CMS
 
 ---
@@ -840,29 +1392,34 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 ### Phase 6: Cleanup
 
 #### Task 20: Delete Deprecated Page Routes
-- **Action:** Remove 5 page files that are no longer needed
-- **Files to delete:**
-  - `app/(frontend)/about/page.tsx`
-  - `app/(frontend)/products/page.tsx`
-  - `app/(frontend)/manufacturing/page.tsx`
-  - `app/(frontend)/sustainability/page.tsx`
-  - `app/(frontend)/contact/page.tsx`
-- **Command:**
+- **Action:** Remove 5 page files and empty directories
+- **Commands:**
   ```bash
+  # Delete page files
   rm app/(frontend)/about/page.tsx
   rm app/(frontend)/products/page.tsx
   rm app/(frontend)/manufacturing/page.tsx
   rm app/(frontend)/sustainability/page.tsx
   rm app/(frontend)/contact/page.tsx
+
+  # Delete empty directories
+  rmdir app/(frontend)/about 2>/dev/null || true
+  rmdir app/(frontend)/products 2>/dev/null || true
+  rmdir app/(frontend)/manufacturing 2>/dev/null || true
+  rmdir app/(frontend)/sustainability 2>/dev/null || true
+  rmdir app/(frontend)/contact 2>/dev/null || true
   ```
-- **Notes:** Also delete empty directories if no other files exist
 
 ---
 
 #### Task 21: Verify Build
 - **Action:** Run build to ensure no errors
 - **Command:** `npm run build`
-- **Expected:** Build completes without errors
+- **Expected:** Build completes without TypeScript or Next.js errors
+- **Verification:**
+  1. No type errors in console
+  2. All pages compile successfully
+  3. Static generation works for root page
 
 ---
 
@@ -871,8 +1428,8 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 ### Navigation & Scroll
 
 - [ ] **AC-1:** Given I am on the website, when I click a navigation link, then the page smoothly scrolls to the corresponding section without a page reload
-- [ ] **AC-2:** Given I am scrolling the page, when a section enters the viewport center, then the corresponding nav link is highlighted with gold color
-- [ ] **AC-3:** Given I am on mobile, when I click a nav link in the mobile menu, then the menu closes and the page scrolls to the section
+- [ ] **AC-2:** Given I am scrolling the page, when a section enters the viewport center, then the corresponding nav link is highlighted with gold color (`text-moooi-gold`)
+- [ ] **AC-3:** Given I am on mobile, when I click a nav link in the mobile menu, then the menu closes immediately and the page scrolls to the section
 - [ ] **AC-4:** Given I click a nav link, when the scroll completes, then the URL hash updates to reflect the current section (e.g., `#about`)
 - [ ] **AC-5:** Given a section is at the top of the viewport, when I observe its position, then there is an 80px offset preventing it from hiding under the sticky nav
 
@@ -880,20 +1437,27 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 - [ ] **AC-6:** Given I load the homepage, when the page renders, then all 8 sections appear in order: Hero, About, Oak Slabs, Warehouse, Products, Manufacturing, Sustainability, Contact
 - [ ] **AC-7:** Given Sanity contains content for a section, when the section renders, then it displays the Sanity content via BlockRenderer
-- [ ] **AC-8:** Given Sanity has no content for a section, when the section renders, then it displays fallback placeholder content
-- [ ] **AC-9:** Given I am viewing the Oak Slabs section, when it renders, then I see product features highlighting oak slab capabilities
-- [ ] **AC-10:** Given I am viewing the Warehouse section, when it renders, then I see information about storage and logistics
+- [ ] **AC-8:** Given Sanity has no content for a section, when the section renders, then it displays fallback placeholder content with Framer Motion animations
+- [ ] **AC-9:** Given I am viewing the Oak Slabs section, when it renders, then I see product features (Custom Dimensions, Kiln Dried, FSC Certified) with staggered animations
+- [ ] **AC-10:** Given I am viewing the Warehouse section, when it renders, then I see facility info with Lucide icons (Warehouse, Truck, Clock)
 
 ### Performance & UX
 
 - [ ] **AC-11:** Given I am loading the page, when all sections are fetched, then a single consolidated GROQ query is used (not 8 separate queries)
-- [ ] **AC-12:** Given I am viewing any section, when Framer Motion animations trigger, then they only fire once per section (not on every scroll)
-- [ ] **AC-13:** Given I visit a direct URL with hash (e.g., `/\#products`), when the page loads, then it scrolls to the correct section
+- [ ] **AC-12:** Given I am viewing any section, when Framer Motion animations trigger, then they only fire once per section (`viewport: { once: true }`)
+- [ ] **AC-13:** Given I visit a direct URL with hash (e.g., `/#products`), when the page loads, then it scrolls to the correct section after hydration
+- [ ] **AC-14:** Given the user prefers reduced motion, when animations would trigger, then they are disabled or instant
 
 ### Cleanup
 
-- [ ] **AC-14:** Given the old page routes exist, when cleanup is complete, then all 5 deprecated page files are deleted
-- [ ] **AC-15:** Given I run `npm run build`, when the build completes, then there are no TypeScript or build errors
+- [ ] **AC-15:** Given the old page routes exist, when cleanup is complete, then all 5 deprecated page files are deleted
+- [ ] **AC-16:** Given I run `npm run build`, when the build completes, then there are no TypeScript or build errors
+
+### Accessibility
+
+- [ ] **AC-17:** Given I am using keyboard navigation, when I press Tab at the top of the page, then I can use the skip-nav link to jump to main content
+- [ ] **AC-18:** Given I am using a screen reader, when I navigate, then section landmarks have appropriate `aria-label` attributes
+- [ ] **AC-19:** Given mobile menu is open, when I press Escape, then the menu closes
 
 ---
 
@@ -905,41 +1469,53 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 |------------|------|--------|
 | Sanity CMS | External | Configured (project: o8zmvtbu8) |
 | BlockRenderer | Internal | Available, 7 block types |
-| Framer Motion | NPM Package | Installed |
+| Framer Motion | NPM Package | Installed (v11.x) |
 | Tailwind CSS | NPM Package | Configured with moooi palette |
+| Lucide React | NPM Package | Installed (for Warehouse icons) |
 
 ### Testing Strategy
 
-**Manual Testing:**
-1. Desktop browsers: Chrome, Firefox, Safari, Edge
-2. Mobile: iOS Safari, Android Chrome
-3. Test scroll spy highlighting accuracy
-4. Test anchor deep-linking from external sources
-5. Test mobile menu open/close with anchor clicks
+**Manual Testing Checklist:**
+1. ✅ Desktop browsers: Chrome, Firefox, Safari, Edge (latest 2 versions)
+2. ✅ Mobile: iOS Safari, Android Chrome
+3. ✅ Viewport widths: 320px, 768px, 1024px, 1440px
+4. ✅ Scroll spy highlighting accuracy
+5. ✅ Anchor deep-linking from external sources
+6. ✅ Mobile menu open/close with anchor clicks
+7. ✅ Keyboard navigation (Tab, Escape)
+8. ✅ Reduced motion preference (disable animations)
+9. ✅ Screen reader navigation (VoiceOver/NVDA)
 
 **Functional Tests:**
 1. Click each nav link → verify scroll to correct section
 2. Scroll through page → verify active nav highlighting updates
 3. Visit `/#section` directly → verify scroll on load
-4. Test on viewport widths: 320px, 768px, 1024px, 1440px
+4. Refresh page at `/#products` → verify correct section shows
+5. Test body scroll lock when mobile menu open
 
 **Build Verification:**
 1. `npm run build` completes without errors
 2. `npm run dev` shows all sections rendering
 3. Lighthouse performance score ≥ 80
+4. Lighthouse accessibility score ≥ 90
 
 ### Risk Mitigation
 
 | Risk | Mitigation |
 |------|------------|
-| SEO impact from SPA | Semantic HTML with proper headings, anchor deep-links for sharing |
-| Scroll spy false triggers | rootMargin set to -50% 0px -50% 0px for center detection |
-| Missing Sanity content | Fallback UI in each section component |
-| Mobile menu not closing | Explicit setIsOpen(false) on nav click |
+| SEO impact from SPA | Semantic HTML with proper headings (single H1 in hero, H2 per section), anchor deep-links for sharing, section aria-labels |
+| Scroll spy false triggers | rootMargin set to `-50% 0px -50% 0px` for center detection; works for any section height |
+| Missing Sanity content | Fallback UI with Framer Motion animations in each section component |
+| Mobile menu not closing | Explicit `setIsOpen(false)` on nav click; Escape key handler |
+| Race condition on hydration | `isClient` state check; IntersectionObserver only created after mount |
+| Section render errors | SectionErrorBoundary wraps each section with graceful fallback |
+| Query failure | `getAllSections()` returns empty object (all null) on error; sections show fallbacks |
 
 ### Notes
 
 - Navigation height is 80px (`h-20`), matched by `scroll-mt-20` (5rem)
 - `scroll-behavior: smooth` already in globals.css
 - CTA links in hero should point to `#contact` instead of `/contact`
-- Consider adding scroll progress indicator as future enhancement
+- Lucide icons used in Warehouse section (Warehouse, Truck, Clock)
+- Body scroll locked when mobile menu is open
+- Future enhancements: scroll progress indicator, back-to-top button, lazy loading
