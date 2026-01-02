@@ -10,7 +10,7 @@ interface SustainabilitySectionProps {
 
 export default function SustainabilitySection({ data }: SustainabilitySectionProps) {
   return (
-    <section id="sustainability" className="scroll-mt-20 bg-moooi-sand" aria-label="Sustainability">
+    <section id="sustainability" className="scroll-mt-20" aria-label="Sustainability">
       {data?.blocks && data.blocks.length > 0 ? (
         <BlockRenderer blocks={data.blocks as any} />
       ) : (
@@ -22,23 +22,13 @@ export default function SustainabilitySection({ data }: SustainabilitySectionPro
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              Responsible Sourcing
+              Sustainable Forestry
             </h2>
-            <p className="text-xl text-moooi-slate mb-8">
-              FSC certified timber from responsibly managed forests.
-              Complete chain of custody documentation for compliance requirements.
+            <p className="text-xl text-moooi-slate">
+              FSC-certified timber from responsibly managed European forests.
+              Full chain of custody documentation. Environmental stewardship is
+              not just a commitment—it's how we do business.
             </p>
-            <div className="flex justify-center gap-8 flex-wrap">
-              <div className="bg-white px-6 py-3 rounded-full font-medium">
-                FSC Certified
-              </div>
-              <div className="bg-white px-6 py-3 rounded-full font-medium">
-                PEFC Available
-              </div>
-              <div className="bg-white px-6 py-3 rounded-full font-medium">
-                EU Timber Regulation
-              </div>
-            </div>
           </motion.div>
         </div>
       )}

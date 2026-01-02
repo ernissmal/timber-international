@@ -10,7 +10,7 @@ interface ProductsSectionProps {
 
 export default function ProductsSection({ data }: ProductsSectionProps) {
   return (
-    <section id="products" className="scroll-mt-20 bg-moooi-cream" aria-label="Products">
+    <section id="products" className="scroll-mt-20" aria-label="Products">
       {data?.blocks && data.blocks.length > 0 ? (
         <BlockRenderer blocks={data.blocks as any} />
       ) : (
@@ -22,11 +22,12 @@ export default function ProductsSection({ data }: ProductsSectionProps) {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              Specifications You Can Count On
+              Our Products
             </h2>
             <p className="text-xl text-moooi-slate">
-              Industrial solid oak solutions manufactured to your specifications.
-              Table tops, panels, furniture components, and custom orders.
+              Precision-manufactured solid oak furniture components for industrial buyers.
+              From table tops to bed frames, we deliver the components you need with
+              consistent quality and reliable supply.
             </p>
           </motion.div>
         </div>

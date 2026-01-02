@@ -22,11 +22,12 @@ export default function ManufacturingSection({ data }: ManufacturingSectionProps
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              Modern Equipment. Rigorous Standards.
+              Manufacturing Excellence
             </h2>
             <p className="text-xl text-moooi-slate">
-              State-of-the-art CNC machinery and quality control processes
-              ensure every piece meets your specifications.
+              State-of-the-art CNC machinery and skilled craftsmen ensure every component
+              meets your exact specifications. Quality control at every step, from raw
+              material to finished product.
             </p>
           </motion.div>
         </div>
