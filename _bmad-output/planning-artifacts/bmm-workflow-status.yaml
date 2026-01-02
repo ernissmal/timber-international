@@ -43,9 +43,9 @@ workflow_status:
     name: "Planning"
     workflows:
       - id: "prd"
-        status: "skipped"
-        reason: "Scope defined via Sprint Change Proposal"
-        artifact: "_bmad-output/planning-artifacts/sprint-change-proposal-2026-01-02.md"
+        status: "completed"
+        completed_date: "2026-01-02"
+        artifact: "_bmad-output/planning-artifacts/prd-timber-international-spa.md"
       - id: "create-ux-design"
         status: "conditional"
         reason: "May be needed for SPA section layouts"
@@ -55,8 +55,13 @@ workflow_status:
     name: "Solutioning"
     workflows:
       - id: "create-architecture"
-        status: "skipped"
-        reason: "Architecture decisions documented in Change Proposal"
+        status: "completed"
+        completed_date: "2026-01-02"
+        artifact: "_bmad-output/planning-artifacts/architecture-timber-international.md"
+      - id: "component-library"
+        status: "completed"
+        completed_date: "2026-01-02"
+        artifact: "_bmad-output/planning-artifacts/component-library.md"
       - id: "create-epics-and-stories"
         status: "completed"
         completed_date: "2026-01-02"
@@ -90,8 +95,27 @@ epics:
     points: 28
     artifact: "_bmad-output/planning-artifacts/epic-001-spa-restructure.md"
 
+# Planning artifacts
+artifacts:
+  - name: "Sprint Change Proposal"
+    path: "_bmad-output/planning-artifacts/sprint-change-proposal-2026-01-02.md"
+    created: "2026-01-02"
+  - name: "PRD"
+    path: "_bmad-output/planning-artifacts/prd-timber-international-spa.md"
+    created: "2026-01-02"
+  - name: "Architecture"
+    path: "_bmad-output/planning-artifacts/architecture-timber-international.md"
+    created: "2026-01-02"
+  - name: "Component Library"
+    path: "_bmad-output/planning-artifacts/component-library.md"
+    created: "2026-01-02"
+  - name: "Epic 001"
+    path: "_bmad-output/planning-artifacts/epic-001-spa-restructure.md"
+    created: "2026-01-02"
+
 # Notes
 notes:
   - "Project initiated via Correct Course workflow due to client feedback"
   - "MPA to SPA conversion with new sections (Oak Slabs, Warehouse)"
   - "Estimated effort: 21-27 hours"
+  - "PRD, Architecture, and Component Library created before Sprint Planning"
