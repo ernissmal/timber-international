@@ -47,16 +47,30 @@ export default defineType({
       title: 'Background Video (Upload)',
       type: 'file',
       options: {
-        accept: 'video/*',
+        accept: 'video/mp4,video/webm',
       },
-      description: 'Upload video file (MP4 recommended, max 100MB). For larger videos, use the URL field below.',
+      description: 'Upload video file (MP4/WebM, max 50MB recommended). Large files may timeout - use URL field below instead.',
+      validation: (Rule) => Rule.custom((value: any) => {
+        if (!value) return true
+        // Note: File size validation happens on upload, not here
+        return true
+      }),
       hidden: ({ parent }) => parent?.backgroundType !== 'video',
     }),
     defineField({
       name: 'backgroundVideoUrl',
-      title: 'Background Video URL (Alternative)',
-      type: 'url',
-      description: 'External video URL. Use this for large videos hosted elsewhere (e.g., /uploads/backgrounds/hero-video.mp4)',
+      title: 'Background Video URL (Recommended for large files)',
+      type: 'string',
+      description: 'Path to video in /public folder (e.g., /uploads/backgrounds/hero-video.mp4) or external URL. Use this for files over 50MB to avoid upload timeouts.',
+      placeholder: '/uploads/backgrounds/hero-video.mp4',
+      validation: (Rule) => Rule.custom((value: any, context: any) => {
+        const parent = context.parent as any
+        // At least one video source is required when backgroundType is video
+        if (parent?.backgroundType === 'video' && !value && !parent?.backgroundVideo) {
+          return 'Either upload a video or provide a video URL'
+        }
+        return true
+      }),
       hidden: ({ parent }) => parent?.backgroundType !== 'video',
     }),
     defineField({

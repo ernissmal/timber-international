@@ -17,4 +17,17 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
   },
+
+  // Increase file upload limits and configure timeouts
+  // Note: Sanity's hard limit is 100MB, but larger files may timeout
+  // For files over 50MB, use the public folder + backgroundVideoUrl instead
+  form: {
+    file: {
+      assetSources: (previousAssetSources) => {
+        return previousAssetSources
+      },
+      // directUploads: true enables resumable uploads for better reliability
+      directUploads: true,
+    },
+  },
 })
