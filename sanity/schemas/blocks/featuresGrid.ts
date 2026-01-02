@@ -47,9 +47,51 @@ export default defineType({
             }),
             defineField({
               name: 'icon',
-              title: 'Icon Name',
+              title: 'Material Icon',
               type: 'string',
-              description: 'Lucide icon name (e.g., "Grid3x3", "TreePine", "Leaf", "Factory"). See lucide.dev/icons for options.',
+              options: {
+                list: [
+                  // Nature & Wood
+                  { title: '🌲 Forest', value: 'forest' },
+                  { title: '🌳 Park', value: 'park' },
+                  { title: '🌿 Eco', value: 'eco' },
+                  { title: '🍃 Nature', value: 'nature' },
+                  { title: '🌱 Yard', value: 'yard' },
+                  // Manufacturing
+                  { title: '🏭 Factory', value: 'factory' },
+                  { title: '⚙️ Precision Manufacturing', value: 'precision_manufacturing' },
+                  { title: '🔨 Construction', value: 'construction' },
+                  { title: '🪚 Carpenter', value: 'carpenter' },
+                  // Business & Contact
+                  { title: '🤝 Handshake', value: 'handshake' },
+                  { title: '✉️ Mail', value: 'mail' },
+                  { title: '📞 Call', value: 'call' },
+                  { title: '📍 Location', value: 'location_on' },
+                  { title: '🕐 Schedule', value: 'schedule' },
+                  { title: '🏢 Business', value: 'business' },
+                  { title: '👥 Groups', value: 'groups' },
+                  { title: '👤 Person', value: 'person' },
+                  { title: '🎧 Support Agent', value: 'support_agent' },
+                  // Logistics
+                  { title: '🚚 Shipping', value: 'local_shipping' },
+                  { title: '📦 Inventory', value: 'inventory_2' },
+                  { title: '🏬 Warehouse', value: 'warehouse' },
+                  { title: '📦 Package', value: 'package_2' },
+                  // Quality & Trust
+                  { title: '✅ Check Circle', value: 'check_circle' },
+                  { title: '✓ Verified', value: 'verified' },
+                  { title: '⭐ Star', value: 'star' },
+                  { title: '👍 Thumb Up', value: 'thumb_up' },
+                  { title: '🏆 Premium', value: 'workspace_premium' },
+                  // Features
+                  { title: '⚡ Speed', value: 'speed' },
+                  { title: '🔒 Security', value: 'security' },
+                  { title: '💰 Savings', value: 'savings' },
+                  { title: '📈 Trending Up', value: 'trending_up' },
+                  { title: '💡 Insights', value: 'insights' },
+                ],
+              },
+              description: 'Select a Material icon. Browse all at fonts.google.com/icons',
             }),
             defineField({
               name: 'image',

@@ -2,38 +2,8 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import {
-  // Default/fallback icons
-  HelpCircle,
-  Box,
-  // Product icons
-  Grid3x3,
-  Armchair,
-  Layers,
-  Cpu,
-  Square,
-  // Sustainability icons
-  TreePine,
-  Infinity,
-  CheckCircle,
-  Leaf,
-  // Contact icons
-  MapPin,
-  Mail,
-  Phone,
-  // About icons
-  Shield,
-  History,
-  Heart,
-  // Home page icons
-  Handshake,
-  TreeDeciduous,
-  // Manufacturing icons
-  Clock,
-  Maximize,
-  Wallet,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { Box } from 'lucide-react'
+import MaterialIcon from '@/components/MaterialIcon'
 
 interface FeatureItem {
   title?: string
@@ -51,47 +21,28 @@ interface FeaturesGridBlockProps {
   }
 }
 
-// Map icon names to actual components
-const iconMap: Record<string, LucideIcon> = {
-  // Default/fallback
-  HelpCircle,
-  Box,
-  // Product icons
-  Grid3x3,
-  Armchair,
-  Layers,
-  Cpu,
-  Square,
-  // Sustainability icons
-  TreePine,
-  Infinity,
-  CheckCircle,
-  Leaf,
-  // Contact icons
-  MapPin,
-  Mail,
-  Phone,
-  // About icons
-  Shield,
-  History,
-  Heart,
-  // Home page icons
-  Handshake,
-  TreeDeciduous,
-  // Manufacturing icons
-  Clock,
-  Maximize,
-  Wallet,
+// Material icon names (lowercase with underscores)
+const materialIconNames = [
+  'forest', 'park', 'eco', 'nature', 'yard',
+  'factory', 'precision_manufacturing', 'construction', 'carpenter',
+  'handshake', 'mail', 'call', 'location_on', 'schedule', 'business', 'groups', 'person', 'support_agent',
+  'local_shipping', 'inventory_2', 'warehouse', 'package_2',
+  'check_circle', 'verified', 'star', 'thumb_up', 'workspace_premium',
+  'speed', 'security', 'savings', 'trending_up', 'insights',
+]
+
+// Check if icon name is a Material icon
+function isMaterialIcon(name: string): boolean {
+  return materialIconNames.includes(name)
 }
 
-// Dynamic icon component
+// Dynamic icon component - supports Material Icons
 function DynamicIcon({ name, className }: { name: string; className?: string }) {
-  const IconComponent = iconMap[name]
-  if (!IconComponent) {
-    console.warn(`Icon not found: ${name}`)
-    return <HelpCircle className={className} />
+  if (isMaterialIcon(name)) {
+    return <MaterialIcon name={name} size="2xl" className={className} />
   }
-  return <IconComponent className={className} />
+  // Fallback for unknown icons
+  return <MaterialIcon name="help" size="2xl" className={className} />
 }
 
 export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {

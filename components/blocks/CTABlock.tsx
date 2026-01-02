@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import MaterialIcon from '@/components/MaterialIcon'
 
 interface CTABlockProps {
   data: {
@@ -12,11 +13,12 @@ interface CTABlockProps {
     buttonLink?: string
     theme?: string
     variant?: string
+    icon?: string
   }
 }
 
 export default function CTABlock({ data }: CTABlockProps) {
-  const isDark = data.theme === 'dark'
+  const isDark = data.theme === 'dark' || data.variant === 'dark'
 
   return (
     <section
@@ -31,6 +33,16 @@ export default function CTABlock({ data }: CTABlockProps) {
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
+          {data.icon && (
+            <div className="mb-8">
+              <MaterialIcon
+                name={data.icon}
+                size="2xl"
+                className={isDark ? 'text-white/80' : 'text-moooi-gold'}
+              />
+            </div>
+          )}
+
           {data.heading && (
             <h2 className="display-large mb-8">{data.heading}</h2>
           )}
