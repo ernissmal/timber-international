@@ -56,7 +56,7 @@ test.describe('Sanity Content Structure Integration', () => {
     await page.waitForLoadState('networkidle')
 
     // Verify that all 8 sections are rendered (indicates successful data fetch)
-    const sections = await page.locator('main section').all()
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
 
     // Verify each section has an ID (from AllSectionsData)
@@ -218,7 +218,7 @@ test.describe('Sanity Content Structure Integration', () => {
     await page.waitForLoadState('networkidle')
 
     // All sections should still render
-    const sections = await page.locator('main section').all()
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
 
     // No section should show error boundary fallback
@@ -292,7 +292,7 @@ test.describe('Sanity Content Structure Integration', () => {
     await page.waitForLoadState('networkidle')
 
     // Content should be rendered (indicates successful SSR/ISR)
-    const sections = await page.locator('main section').all()
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
   })
 
@@ -303,7 +303,7 @@ test.describe('Sanity Content Structure Integration', () => {
     await page.waitForLoadState('networkidle')
 
     // Even with all null data, sections should render
-    const sections = await page.locator('main section').all()
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
 
     // Each section should have fallback content
@@ -394,7 +394,7 @@ test.describe('Sanity Content Structure Integration', () => {
     await page.waitForLoadState('networkidle')
 
     // Verify sections appear in the order defined in AllSectionsData
-    const sections = await page.locator('main section').all()
+    const sections = await page.locator('main main > section').all()
 
     const expectedOrder = [
       'hero',
@@ -419,7 +419,7 @@ test.describe('Sanity Content Structure Integration', () => {
     // Error boundaries should catch section errors
     // We verify by checking that all sections render successfully
 
-    const sections = await page.locator('main section').all()
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
 
     // No error boundary fallback should be visible
@@ -438,14 +438,14 @@ test.describe('Sanity Content Structure Integration', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const firstLoadSections = await page.locator('main section').all()
+    const firstLoadSections = await page.locator('main main > section').all()
     expect(firstLoadSections.length).toBe(8)
 
     // Reload page (should use cached version or revalidate)
     await page.reload()
     await page.waitForLoadState('networkidle')
 
-    const secondLoadSections = await page.locator('main section').all()
+    const secondLoadSections = await page.locator('main main > section').all()
     expect(secondLoadSections.length).toBe(8)
 
     // Both loads should have same structure

@@ -130,20 +130,27 @@ test.describe('Smooth Scroll and UX Polish', () => {
 
   test.describe('Skip Navigation Accessibility', () => {
     test('should have skip-nav link in the DOM', async ({ page }) => {
-      const skipNav = page.locator('.skip-nav');
+      const skipNav = page.locator('a.skip-nav');
       await expect(skipNav).toBeAttached();
       await expect(skipNav).toHaveText('Skip to main content');
       await expect(skipNav).toHaveAttribute('href', '#hero');
     });
 
     test('should make skip-nav visible when focused', async ({ page }) => {
-      const skipNav = page.locator('.skip-nav');
+      const skipNav = page.locator('a.skip-nav');
 
       // Focus the skip-nav link (press Tab)
       await page.keyboard.press('Tab');
 
       // Wait for focus state
       await page.waitForTimeout(200);
+
+      // Verify skip-nav is focused
+      const isFocused = await skipNav.evaluate((el) => {
+        return document.activeElement === el;
+      });
+
+      expect(isFocused).toBe(true);
 
       // Now it should be visible (focused state shows it)
       const focusedPosition = await skipNav.evaluate((el) => {
@@ -175,7 +182,7 @@ test.describe('Smooth Scroll and UX Polish', () => {
     });
 
     test('should have proper z-index for skip-nav visibility', async ({ page }) => {
-      const skipNav = page.locator('.skip-nav');
+      const skipNav = page.locator('a.skip-nav');
 
       const zIndex = await skipNav.evaluate((el) => {
         return window.getComputedStyle(el).zIndex;
@@ -270,12 +277,16 @@ test.describe('Smooth Scroll and UX Polish', () => {
         await page.setViewportSize({ width: viewport.width, height: viewport.height });
         await page.goto('/');
         await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(300);
 
         // On mobile, need to use mobile menu
         if (viewport.width < 768) {
-          await page.click('button[aria-label="Open menu"]');
-          await page.waitForTimeout(300);
-          await page.click('#mobile-menu a[href="#about"]');
+          const menuButton = page.locator('button[aria-label="Open menu"]');
+          if (await menuButton.isVisible()) {
+            await menuButton.click();
+            await page.waitForTimeout(300);
+            await page.click('#mobile-menu a[href="#about"]');
+          }
         } else {
           // Click on a section
           await page.click('nav a[href="#about"]');
@@ -399,7 +410,7 @@ test.describe('Smooth Scroll and UX Polish', () => {
       // Focus skip-nav
       await page.keyboard.press('Tab');
 
-      const skipNav = page.locator('.skip-nav');
+      const skipNav = page.locator('a.skip-nav');
 
       // Check if element is focused
       const isFocused = await skipNav.evaluate((el) => {

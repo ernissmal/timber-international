@@ -54,8 +54,9 @@ test.describe('Main Page Section Consolidation', () => {
   test('should have sections in correct order', async ({ page }) => {
     await page.waitForLoadState('networkidle')
 
-    // Get only the top-level section elements (direct children of main)
-    const sections = await page.locator('main > section').all()
+    // Get only the top-level section elements (direct children of inner main)
+    // DOM has nested main elements: main > main > section
+    const sections = await page.locator('main main > section').all()
 
     // Verify we have exactly 8 sections
     expect(sections.length).toBe(8)
@@ -186,11 +187,11 @@ test.describe('Main Page Section Consolidation', () => {
   test('page should have main element wrapping sections', async ({ page }) => {
     await page.waitForLoadState('networkidle')
 
-    const mainElement = page.locator('main')
+    const mainElement = page.locator('main').first()
     await expect(mainElement).toBeVisible()
 
-    // Verify top-level sections are inside main
-    const sectionsInMain = await page.locator('main > section').count()
+    // Verify top-level sections are inside main (DOM has nested main > main > section)
+    const sectionsInMain = await page.locator('main main > section').count()
     expect(sectionsInMain).toBe(8)
   })
 
@@ -262,8 +263,8 @@ test.describe('Main Page Section Consolidation', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Verify all top-level sections are still visible on mobile
-    const sections = await page.locator('main > section').all()
+    // Verify all top-level sections are still visible on mobile (DOM has nested main > main > section)
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
 
     // Check hero section is visible on mobile
@@ -276,8 +277,8 @@ test.describe('Main Page Section Consolidation', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Verify all top-level sections are still visible on tablet
-    const sections = await page.locator('main > section').all()
+    // Verify all top-level sections are still visible on tablet (DOM has nested main > main > section)
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
   })
 
@@ -286,8 +287,8 @@ test.describe('Main Page Section Consolidation', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Verify all top-level sections are still visible on desktop
-    const sections = await page.locator('main > section').all()
+    // Verify all top-level sections are still visible on desktop (DOM has nested main > main > section)
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
   })
 
@@ -301,6 +302,7 @@ test.describe('Main Page Section Consolidation', () => {
 
     await page.goto('/')
     await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(1000) // Wait for hydration
 
     // Page should load successfully (sections are visible)
     const heroSection = page.locator('section#hero')
@@ -311,8 +313,8 @@ test.describe('Main Page Section Consolidation', () => {
     // This test verifies that if a section fails, it doesn't break the entire page
     await page.waitForLoadState('networkidle')
 
-    // All top-level sections should be present even if some have errors
-    const sections = await page.locator('main > section').all()
+    // All top-level sections should be present even if some have errors (DOM has nested main > main > section)
+    const sections = await page.locator('main main > section').all()
     expect(sections.length).toBe(8)
 
     // Check that other sections still render

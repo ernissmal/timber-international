@@ -149,13 +149,16 @@ test.describe('Oak Slabs Section', () => {
 
     test('AC-17: Section maintains proper spacing on mobile (320px)', async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 568 })
+      await page.goto('/')
+      await page.waitForLoadState('networkidle')
 
       const section = page.locator('section#oak-slabs')
       await expect(section).toBeVisible()
 
-      // Verify section has padding
-      await expect(section).toHaveClass(/py-20/)
-      await expect(section).toHaveClass(/px-6/)
+      // Verify section or its container has padding (may be on inner div)
+      const container = section.locator('> div').first()
+      await expect(container).toHaveClass(/py-20/)
+      await expect(container).toHaveClass(/px-6/)
     })
 
     test('AC-17: Section maintains proper spacing on tablet (768px)', async ({ page }) => {
