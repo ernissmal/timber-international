@@ -1002,14 +1002,11 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 #### Task 14: Update Navigation Component (Complete Implementation)
 - **File:** `components/Navigation.tsx`
 - **Action:** Full replacement with anchor links, scroll spy, and accessibility
-- **Fixes Applied:**
-  - **F2 - Race condition fix**: Added retry mechanism using `requestAnimationFrame` to wait for sections to mount
-  - **F9 - Debouncing**: Added `activeSectionRef` to prevent rapid re-renders, process only most intersecting section
 - **Complete Code:**
   ```typescript
   'use client'
 
-  import { useState, useEffect, useCallback, useRef } from 'react'
+  import { useState, useEffect, useCallback } from 'react'
   import { Menu, X } from 'lucide-react'
 
   const navLinks = [
@@ -1027,7 +1024,6 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     const [isOpen, setIsOpen] = useState(false)
     const [activeSection, setActiveSection] = useState('hero')
     const [isClient, setIsClient] = useState(false)
-    const activeSectionRef = useRef('hero')
 
     // Handle initial hash scroll after hydration
     useEffect(() => {
@@ -1051,47 +1047,42 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     useEffect(() => {
       if (!isClient) return
 
-      const setupObserver = () => {
-        const sectionIds = navLinks.map(link => link.href.slice(1))
-        const sections = sectionIds
-          .map(id => document.getElementById(id))
-          .filter((el): el is HTMLElement => el !== null)
+      // Get all section elements
+      const sectionIds = navLinks.map(link => link.href.slice(1))
+      const sections = sectionIds
+        .map(id => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null)
 
-        // Retry if sections not mounted yet
-        if (sections.length === 0) {
-          requestAnimationFrame(setupObserver)
-          return
-        }
+      if (sections.length === 0) return
 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            // Process only intersecting entries, prioritize by ratio
-            const intersecting = entries
-              .filter(e => e.isIntersecting)
-              .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const newSection = entry.target.id
+              setActiveSection(newSection)
 
-            if (intersecting.length > 0) {
-              const newSection = intersecting[0].target.id
-              // Only update if changed (prevents rapid re-renders)
-              if (newSection !== activeSectionRef.current) {
-                activeSectionRef.current = newSection
-                setActiveSection(newSection)
+              // Update URL hash without triggering scroll
+              const currentHash = window.location.hash.slice(1)
+              if (currentHash !== newSection) {
                 window.history.replaceState(null, '', `#${newSection}`)
               }
             }
-          },
-          {
-            rootMargin: '-50% 0px -50% 0px',
-            threshold: 0
-          }
-        )
+          })
+        },
+        {
+          // Trigger when section center hits viewport center
+          // -50% from top and bottom creates center detection zone
+          rootMargin: '-50% 0px -50% 0px',
+          threshold: 0
+        }
+      )
 
-        sections.forEach((section) => observer.observe(section))
-        return () => observer.disconnect()
+      sections.forEach((section) => observer.observe(section))
+
+      return () => {
+        observer.disconnect()
       }
-
-      const cleanup = setupObserver()
-      return cleanup
     }, [isClient])
 
     // Handle navigation click
@@ -1608,15 +1599,6 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 | Lucide React | NPM Package | Installed (for Warehouse icons) |
 
 ### Testing Strategy
-
-**Pre-Development Verification:**
-1. **Run Sanity verification script BEFORE starting development:**
-   ```bash
-   npm run verify:sections
-   ```
-   - This script checks that all 8 required page documents exist in Sanity
-   - If any documents are missing, create them in Sanity Studio before proceeding
-   - The script will exit with error code 1 if documents are missing
 
 **Manual Testing Checklist:**
 1. ✅ Desktop browsers: Chrome, Firefox, Safari, Edge (latest 2 versions)
