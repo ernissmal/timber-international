@@ -54,8 +54,8 @@ test.describe('Main Page Section Consolidation', () => {
   test('should have sections in correct order', async ({ page }) => {
     await page.waitForLoadState('networkidle')
 
-    // Get all section elements in DOM order
-    const sections = await page.locator('main section').all()
+    // Get only the top-level section elements (direct children of main)
+    const sections = await page.locator('main > section').all()
 
     // Verify we have exactly 8 sections
     expect(sections.length).toBe(8)
@@ -171,11 +171,15 @@ test.describe('Main Page Section Consolidation', () => {
 
     if (await contactLink.isVisible()) {
       await contactLink.click()
-      await page.waitForTimeout(500) // Wait for smooth scroll
+      // Wait longer for smooth scroll and scroll spy to settle
+      await page.waitForTimeout(1000)
 
       // Check if contact section is in viewport
       const contactSection = page.locator('section#contact')
       await expect(contactSection).toBeInViewport()
+
+      // URL should have a hash (scroll spy determines which)
+      expect(page.url()).toContain('#')
     }
   })
 
@@ -185,8 +189,8 @@ test.describe('Main Page Section Consolidation', () => {
     const mainElement = page.locator('main')
     await expect(mainElement).toBeVisible()
 
-    // Verify sections are inside main
-    const sectionsInMain = await page.locator('main section').count()
+    // Verify top-level sections are inside main
+    const sectionsInMain = await page.locator('main > section').count()
     expect(sectionsInMain).toBe(8)
   })
 
@@ -258,8 +262,8 @@ test.describe('Main Page Section Consolidation', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Verify all sections are still visible on mobile
-    const sections = await page.locator('main section').all()
+    // Verify all top-level sections are still visible on mobile
+    const sections = await page.locator('main > section').all()
     expect(sections.length).toBe(8)
 
     // Check hero section is visible on mobile
@@ -272,8 +276,8 @@ test.describe('Main Page Section Consolidation', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Verify all sections are still visible on tablet
-    const sections = await page.locator('main section').all()
+    // Verify all top-level sections are still visible on tablet
+    const sections = await page.locator('main > section').all()
     expect(sections.length).toBe(8)
   })
 
@@ -282,8 +286,8 @@ test.describe('Main Page Section Consolidation', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Verify all sections are still visible on desktop
-    const sections = await page.locator('main section').all()
+    // Verify all top-level sections are still visible on desktop
+    const sections = await page.locator('main > section').all()
     expect(sections.length).toBe(8)
   })
 
@@ -307,8 +311,8 @@ test.describe('Main Page Section Consolidation', () => {
     // This test verifies that if a section fails, it doesn't break the entire page
     await page.waitForLoadState('networkidle')
 
-    // All sections should be present even if some have errors
-    const sections = await page.locator('main section').all()
+    // All top-level sections should be present even if some have errors
+    const sections = await page.locator('main > section').all()
     expect(sections.length).toBe(8)
 
     // Check that other sections still render

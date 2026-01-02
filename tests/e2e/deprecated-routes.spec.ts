@@ -17,111 +17,146 @@ test.describe('Deprecated Routes - Story 1-6', () => {
     test('should redirect /about to /#about with 301 status', async ({ page }) => {
       // Capture the redirect response
       let redirectResponse: any = null;
+      let redirectLocation: string | null = null;
+
       page.on('response', response => {
         if (response.url().includes('/about') && [301, 307, 308].includes(response.status())) {
           redirectResponse = response;
+          // Capture the Location header to verify redirect target
+          redirectLocation = response.headers()['location'] || null;
         }
       });
 
-      await page.goto('/about');
+      await page.goto('/about', { waitUntil: 'domcontentloaded' });
 
       // Verify redirect occurred (308 is Next.js permanent redirect)
       expect(redirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-      // Verify final URL contains anchor
-      expect(page.url()).toContain('#about');
+      // Verify the redirect location header points to /#about
+      expect(redirectLocation).toContain('#about');
 
-      // Verify we're on the homepage with correct anchor
-      expect(page.url()).toMatch(/\/#about$/);
+      // Verify we're on the homepage (scroll spy may have changed the hash)
+      expect(page.url()).toContain('#');
+
+      // Verify the about section exists on the page
+      await expect(page.locator('#about')).toBeAttached();
     });
 
     test('should redirect /products to /#products with 301 status', async ({ page }) => {
       // Capture the redirect response
       let redirectResponse: any = null;
+      let redirectLocation: string | null = null;
+
       page.on('response', response => {
         if (response.url().includes('/products') && [301, 307, 308].includes(response.status())) {
           redirectResponse = response;
+          // Capture the Location header to verify redirect target
+          redirectLocation = response.headers()['location'] || null;
         }
       });
 
-      await page.goto('/products');
+      await page.goto('/products', { waitUntil: 'domcontentloaded' });
 
       // Verify redirect occurred (308 is Next.js permanent redirect)
       expect(redirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-      // Verify final URL contains anchor
-      expect(page.url()).toContain('#products');
+      // Verify the redirect location header points to /#products
+      expect(redirectLocation).toContain('#products');
 
-      // Verify we're on the homepage with correct anchor
-      expect(page.url()).toMatch(/\/#products$/);
+      // Verify we're on the homepage (scroll spy may have changed the hash)
+      expect(page.url()).toContain('#');
+
+      // Verify the products section exists on the page
+      await expect(page.locator('#products')).toBeAttached();
     });
 
     test('should redirect /manufacturing to /#manufacturing with 301 status', async ({ page }) => {
       // Capture the redirect response
       let redirectResponse: any = null;
+      let redirectLocation: string | null = null;
+
       page.on('response', response => {
         if (response.url().includes('/manufacturing') && [301, 307, 308].includes(response.status())) {
           redirectResponse = response;
+          // Capture the Location header to verify redirect target
+          redirectLocation = response.headers()['location'] || null;
         }
       });
 
-      await page.goto('/manufacturing');
+      await page.goto('/manufacturing', { waitUntil: 'domcontentloaded' });
 
       // Verify redirect occurred (308 is Next.js permanent redirect)
       expect(redirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-      // Verify final URL contains anchor
-      expect(page.url()).toContain('#manufacturing');
+      // Verify the redirect location header points to /#manufacturing
+      expect(redirectLocation).toContain('#manufacturing');
 
-      // Verify we're on the homepage with correct anchor
-      expect(page.url()).toMatch(/\/#manufacturing$/);
+      // Verify we're on the homepage (scroll spy may have changed the hash)
+      expect(page.url()).toContain('#');
+
+      // Verify the manufacturing section exists on the page
+      await expect(page.locator('#manufacturing')).toBeAttached();
     });
 
     test('should redirect /sustainability to /#sustainability with 301 status', async ({ page }) => {
       // Capture the redirect response
       let redirectResponse: any = null;
+      let redirectLocation: string | null = null;
+
       page.on('response', response => {
         if (response.url().includes('/sustainability') && [301, 307, 308].includes(response.status())) {
           redirectResponse = response;
+          // Capture the Location header to verify redirect target
+          redirectLocation = response.headers()['location'] || null;
         }
       });
 
-      await page.goto('/sustainability');
+      await page.goto('/sustainability', { waitUntil: 'domcontentloaded' });
 
       // Verify redirect occurred (308 is Next.js permanent redirect)
       expect(redirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-      // Verify final URL contains anchor
-      expect(page.url()).toContain('#sustainability');
+      // Verify the redirect location header points to /#sustainability
+      expect(redirectLocation).toContain('#sustainability');
 
-      // Verify we're on the homepage with correct anchor
-      expect(page.url()).toMatch(/\/#sustainability$/);
+      // Verify we're on the homepage (scroll spy may have changed the hash)
+      expect(page.url()).toContain('#');
+
+      // Verify the sustainability section exists on the page
+      await expect(page.locator('#sustainability')).toBeAttached();
     });
 
     test('should redirect /contact to /#contact with 301 status', async ({ page }) => {
       // Capture the redirect response
       let redirectResponse: any = null;
+      let redirectLocation: string | null = null;
+
       page.on('response', response => {
         if (response.url().includes('/contact') && [301, 307, 308].includes(response.status())) {
           redirectResponse = response;
+          // Capture the Location header to verify redirect target
+          redirectLocation = response.headers()['location'] || null;
         }
       });
 
-      await page.goto('/contact');
+      await page.goto('/contact', { waitUntil: 'domcontentloaded' });
 
       // Verify redirect occurred (308 is Next.js permanent redirect)
       expect(redirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-      // Verify final URL contains anchor
-      expect(page.url()).toContain('#contact');
+      // Verify the redirect location header points to /#contact
+      expect(redirectLocation).toContain('#contact');
 
-      // Verify we're on the homepage with correct anchor
-      expect(page.url()).toMatch(/\/#contact$/);
+      // Verify we're on the homepage (scroll spy may have changed the hash)
+      expect(page.url()).toContain('#');
+
+      // Verify the contact section exists on the page
+      await expect(page.locator('#contact')).toBeAttached();
     });
   });
 
@@ -152,57 +187,87 @@ test.describe('Deprecated Routes - Story 1-6', () => {
   test.describe('AC-3: Anchor navigation works', () => {
     test('should navigate to #about section', async ({ page }) => {
       // Navigate directly to anchor URL
-      const response = await page.goto('/#about');
+      const response = await page.goto('/#about', { waitUntil: 'domcontentloaded' });
 
       // Verify successful response
       expect(response?.status()).toBe(200);
 
-      // Verify URL contains hash
-      expect(page.url()).toContain('#about');
+      // Wait for scroll and URL to stabilize
+      await page.waitForTimeout(500);
+
+      // Verify URL contains hash (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
+
+      // Verify the about section is in the viewport
+      await expect(page.locator('#about')).toBeInViewport();
     });
 
     test('should navigate to #products section', async ({ page }) => {
       // Navigate directly to anchor URL
-      const response = await page.goto('/#products');
+      const response = await page.goto('/#products', { waitUntil: 'domcontentloaded' });
 
       // Verify successful response
       expect(response?.status()).toBe(200);
 
-      // Verify URL contains hash
-      expect(page.url()).toContain('#products');
+      // Wait for scroll and URL to stabilize
+      await page.waitForTimeout(500);
+
+      // Verify URL contains hash (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
+
+      // Verify the products section is in the viewport
+      await expect(page.locator('#products')).toBeInViewport();
     });
 
     test('should navigate to #manufacturing section', async ({ page }) => {
       // Navigate directly to anchor URL
-      const response = await page.goto('/#manufacturing');
+      const response = await page.goto('/#manufacturing', { waitUntil: 'domcontentloaded' });
 
       // Verify successful response
       expect(response?.status()).toBe(200);
 
-      // Verify URL contains hash
-      expect(page.url()).toContain('#manufacturing');
+      // Wait for scroll and URL to stabilize
+      await page.waitForTimeout(500);
+
+      // Verify URL contains hash (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
+
+      // Verify the manufacturing section is in the viewport
+      await expect(page.locator('#manufacturing')).toBeInViewport();
     });
 
     test('should navigate to #sustainability section', async ({ page }) => {
       // Navigate directly to anchor URL
-      const response = await page.goto('/#sustainability');
+      const response = await page.goto('/#sustainability', { waitUntil: 'domcontentloaded' });
 
       // Verify successful response
       expect(response?.status()).toBe(200);
 
-      // Verify URL contains hash
-      expect(page.url()).toContain('#sustainability');
+      // Wait for scroll and URL to stabilize
+      await page.waitForTimeout(500);
+
+      // Verify URL contains hash (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
+
+      // Verify the sustainability section is in the viewport
+      await expect(page.locator('#sustainability')).toBeInViewport();
     });
 
     test('should navigate to #contact section', async ({ page }) => {
       // Navigate directly to anchor URL
-      const response = await page.goto('/#contact');
+      const response = await page.goto('/#contact', { waitUntil: 'domcontentloaded' });
 
       // Verify successful response
       expect(response?.status()).toBe(200);
 
-      // Verify URL contains hash
-      expect(page.url()).toContain('#contact');
+      // Wait for scroll and URL to stabilize
+      await page.waitForTimeout(500);
+
+      // Verify URL contains hash (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
+
+      // Verify the contact section is in the viewport
+      await expect(page.locator('#contact')).toBeInViewport();
     });
   });
 
@@ -223,33 +288,45 @@ test.describe('Deprecated Routes - Story 1-6', () => {
 
     test('should handle direct hash navigation from external link', async ({ page }) => {
       // Simulate coming from external link with hash
-      const response = await page.goto('/#contact');
+      const response = await page.goto('/#contact', { waitUntil: 'domcontentloaded' });
 
       // Verify successful load
       expect(response?.status()).toBe(200);
 
-      // Verify hash is present
-      expect(page.url()).toContain('#contact');
+      // Wait for scroll and URL to stabilize
+      await page.waitForTimeout(500);
+
+      // Verify hash is present (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
+
+      // Verify the contact section is visible
+      await expect(page.locator('#contact')).toBeInViewport();
     });
 
     test('should preserve query parameters in redirects', async ({ page }) => {
       // Capture the redirect response
       let redirectResponse: any = null;
+      let redirectLocation: string | null = null;
+
       page.on('response', response => {
         if (response.url().includes('/about') && [301, 307, 308].includes(response.status())) {
           redirectResponse = response;
+          redirectLocation = response.headers()['location'] || null;
         }
       });
 
       // Test if query params are handled (optional feature)
-      await page.goto('/about?utm_source=test');
+      await page.goto('/about?utm_source=test', { waitUntil: 'domcontentloaded' });
 
       // Verify redirect occurred (308 is Next.js permanent redirect)
       expect(redirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-      // Verify final URL contains anchor
-      expect(page.url()).toContain('#about');
+      // Verify the redirect location contains anchor
+      expect(redirectLocation).toContain('#about');
+
+      // Verify final URL contains hash (scroll spy may have changed it)
+      expect(page.url()).toContain('#');
     });
   });
 
@@ -262,29 +339,35 @@ test.describe('Deprecated Routes - Story 1-6', () => {
       // Test /about redirect with fresh page
       const aboutPage = await context.newPage();
       let aboutRedirectResponse: any = null;
+      let aboutRedirectLocation: string | null = null;
       aboutPage.on('response', response => {
         if (response.url().includes('/about') && [301, 307, 308].includes(response.status())) {
           aboutRedirectResponse = response;
+          aboutRedirectLocation = response.headers()['location'] || null;
         }
       });
-      await aboutPage.goto('/about');
+      await aboutPage.goto('/about', { waitUntil: 'domcontentloaded' });
       expect(aboutRedirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(aboutRedirectResponse?.status() || 0);
-      expect(aboutPage.url()).toContain('#about');
+      expect(aboutRedirectLocation).toContain('#about');
+      expect(aboutPage.url()).toContain('#');
       await aboutPage.close();
 
       // Test /products redirect with fresh page
       const productsPage = await context.newPage();
       let productsRedirectResponse: any = null;
+      let productsRedirectLocation: string | null = null;
       productsPage.on('response', response => {
         if (response.url().includes('/products') && [301, 307, 308].includes(response.status())) {
           productsRedirectResponse = response;
+          productsRedirectLocation = response.headers()['location'] || null;
         }
       });
-      await productsPage.goto('/products');
+      await productsPage.goto('/products', { waitUntil: 'domcontentloaded' });
       expect(productsRedirectResponse).not.toBeNull();
       expect([301, 307, 308]).toContain(productsRedirectResponse?.status() || 0);
-      expect(productsPage.url()).toContain('#products');
+      expect(productsRedirectLocation).toContain('#products');
+      expect(productsPage.url()).toContain('#');
       await productsPage.close();
     });
 
@@ -303,20 +386,25 @@ test.describe('Deprecated Routes - Story 1-6', () => {
 
         // Capture the redirect response
         let redirectResponse: any = null;
+        let redirectLocation: string | null = null;
         testPage.on('response', response => {
           if (response.url().includes(route.path) && [301, 307, 308].includes(response.status())) {
             redirectResponse = response;
+            redirectLocation = response.headers()['location'] || null;
           }
         });
 
-        await testPage.goto(route.path);
+        await testPage.goto(route.path, { waitUntil: 'domcontentloaded' });
 
         // Verify permanent redirect
         expect(redirectResponse).not.toBeNull();
         expect([301, 307, 308]).toContain(redirectResponse?.status() || 0);
 
-        // Verify correct anchor in final URL
-        expect(testPage.url()).toContain(route.anchor);
+        // Verify the redirect location contains the expected anchor
+        expect(redirectLocation).toContain(route.anchor);
+
+        // Verify final URL contains hash (scroll spy may have changed it)
+        expect(testPage.url()).toContain('#');
 
         // Close the test page
         await testPage.close();
