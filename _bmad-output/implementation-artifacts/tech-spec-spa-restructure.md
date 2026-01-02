@@ -101,40 +101,14 @@ Convert navigation to anchor-based links with scroll spy, consolidate all page c
 
 ### TypeScript Types (Add to lib/sanity.ts)
 
+**NOTE:** These types EXTEND the existing `SanityPage` and `SanityBlock` interfaces already in lib/sanity.ts. The existing interface uses nested `seo` object, so we maintain compatibility.
+
 ```typescript
-// Block types from Sanity
-export interface SanityBlock {
-  _key: string
-  _type: string
-  __typename?: string
-  // Block-specific fields vary by type
-  [key: string]: unknown
-}
+// EXISTING in lib/sanity.ts - DO NOT DUPLICATE:
+// - SanityBlock (lines 6-10)
+// - SanityPage (lines 12-23) - uses nested seo{} object
 
-// Image asset reference
-export interface SanityImageAsset {
-  _ref: string
-  _type: 'reference'
-}
-
-export interface SanityImage {
-  _type: 'image'
-  asset: SanityImageAsset | { _id: string; url: string }
-  alt?: string
-  hotspot?: { x: number; y: number; height: number; width: number }
-  crop?: { top: number; bottom: number; left: number; right: number }
-}
-
-// Page document from Sanity
-export interface SanityPage {
-  _id: string
-  _type: 'page'
-  title: string
-  slug: string
-  seoTitle?: string
-  seoDescription?: string
-  blocks: SanityBlock[]
-}
+// ADD these new types to lib/sanity.ts:
 
 // Consolidated sections data for SPA
 export interface AllSectionsData {
@@ -153,6 +127,26 @@ export interface SectionProps {
   data: SanityPage | null
 }
 ```
+
+**IMPORTANT - Existing SanityPage Interface:**
+The existing `lib/sanity.ts` already defines `SanityPage` with a NESTED `seo` object:
+```typescript
+// Already exists in lib/sanity.ts (DO NOT DUPLICATE):
+export interface SanityPage {
+  _id: string
+  title: string
+  slug: string
+  description?: string
+  blocks: SanityBlock[]
+  seo?: {
+    title?: string
+    description?: string
+    ogImage?: any
+  }
+}
+```
+
+The GROQ query and transform functions must match this existing structure.
 
 ---
 
@@ -227,7 +221,15 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 - **Code to add:**
   ```css
   /* Scroll offset for sticky header (80px = h-20) */
-  section[id] {
+  /* Use specific IDs to avoid affecting nested sections in blocks */
+  #hero,
+  #about,
+  #oak-slabs,
+  #warehouse,
+  #products,
+  #manufacturing,
+  #sustainability,
+  #contact {
     scroll-margin-top: 5rem;
   }
 
@@ -265,9 +267,11 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 #### Task 2: Create Consolidated GROQ Query
 - **File:** `sanity/lib/queries.ts`
 - **Action:** Add new `allSectionsQuery` with complete field specifications
+- **IMPORTANT:** Query structure matches EXISTING `SanityPage` interface with nested `seo` object. Image assets use `_ref` pattern (NOT url) - the existing `transformSanityBlocks` uses `urlFor()` to convert.
 - **Code to add:**
   ```typescript
   // Reusable block projection - matches existing pageBySlugQuery pattern
+  // NOTE: Images keep asset._ref structure - urlFor() converts to URLs in transform
   const blockProjection = `{
     _type,
     _key,
@@ -286,22 +290,14 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
     role,
     backgroundImage {
       _type,
-      asset->{
-        _id,
-        url,
-        metadata { dimensions, lqip }
-      },
+      asset,
       alt,
       hotspot,
       crop
     },
     image {
       _type,
-      asset->{
-        _id,
-        url,
-        metadata { dimensions, lqip }
-      },
+      asset,
       alt,
       hotspot,
       crop
@@ -315,88 +311,109 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
       label,
       image {
         _type,
-        asset->{
-          _id,
-          url,
-          metadata { dimensions, lqip }
-        },
+        asset,
         alt
       }
     }
   }`
 
   // Consolidated query for SPA - fetches all sections at once
+  // Uses nested seo{} to match existing SanityPage interface
   export const allSectionsQuery = groq`{
     "hero": *[_type == "page" && slug.current == "home"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "about": *[_type == "page" && slug.current == "about"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "oakSlabs": *[_type == "page" && slug.current == "oak-slabs"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "warehouse": *[_type == "page" && slug.current == "warehouse"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "products": *[_type == "page" && slug.current == "products"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "manufacturing": *[_type == "page" && slug.current == "manufacturing"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "sustainability": *[_type == "page" && slug.current == "sustainability"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     },
     "contact": *[_type == "page" && slug.current == "contact"][0] {
       _id,
-      _type,
       title,
       "slug": slug.current,
-      seoTitle,
-      seoDescription,
+      description,
+      seo {
+        title,
+        description,
+        ogImage
+      },
       blocks[] ${blockProjection}
     }
   }`
@@ -407,28 +424,15 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 #### Task 3: Add Consolidated Fetch Function with Error Handling
 - **File:** `lib/sanity.ts`
 - **Action:** Add `getAllSections()` function with proper error handling
+- **IMPORTANT:** Uses EXISTING `transformSanityBlocks()` function (lines 37-75) which already handles:
+  - Converting `_type` to `__typename` via `typeToTypename` map
+  - Converting image `asset._ref` to URLs via `urlFor()` helper
+  - This is NOT a new transform - we reuse the existing one for consistency
 - **Code to add:**
   ```typescript
   import { allSectionsQuery } from '@/sanity/lib/queries'
 
-  // Type definitions (add near top of file with other types)
-  export interface SanityBlock {
-    _key: string
-    _type: string
-    __typename?: string
-    [key: string]: unknown
-  }
-
-  export interface SanityPage {
-    _id: string
-    _type: 'page'
-    title: string
-    slug: string
-    seoTitle?: string
-    seoDescription?: string
-    blocks: SanityBlock[]
-  }
-
+  // ADD this type (SanityBlock and SanityPage already exist - DO NOT DUPLICATE)
   export interface AllSectionsData {
     hero: SanityPage | null
     about: SanityPage | null
@@ -456,6 +460,10 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
    * Fetches all section data for the SPA in a single query.
    * Returns null for any section that doesn't exist in Sanity.
    * On complete failure, returns empty sections object (all null).
+   *
+   * Uses existing transformSanityBlocks() for consistent block transformation:
+   * - _type → __typename conversion
+   * - Image asset refs → URLs via urlFor()
    */
   export async function getAllSections(): Promise<AllSectionsData> {
     try {
@@ -468,7 +476,8 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
         return emptySections
       }
 
-      // Transform blocks for each section that exists
+      // Transform blocks for each section using EXISTING transformSanityBlocks
+      // This function already handles _type → __typename and asset._ref → URL
       const transformSection = (section: SanityPage | null): SanityPage | null => {
         if (!section) return null
         return {
@@ -506,12 +515,12 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 
 #### Task 5: Create HeroSection Component
 - **File:** `components/sections/HeroSection.tsx`
+- **IMPORTANT:** The existing `Hero` component uses `<Link>` which doesn't work with anchor hrefs. For fallback, use inline implementation with `<a>` tag for anchor links.
 - **Code:**
   ```typescript
   'use client'
 
   import { BlockRenderer } from '@/components/blocks'
-  import Hero from '@/components/Hero'
   import type { SanityPage } from '@/lib/sanity'
 
   interface HeroSectionProps {
@@ -524,12 +533,25 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
         {data?.blocks && data.blocks.length > 0 ? (
           <BlockRenderer blocks={data.blocks} />
         ) : (
-          <Hero
-            heading="Industrial Timber Supply You Can Build Your Business On"
-            subheading="Your supply chain doesn't have room for inconsistency. Precision-manufactured solid oak furniture components with documented quality standards."
-            ctaText="Request a Quote"
-            ctaLink="#contact"
-          />
+          // Inline fallback - don't use Hero component because it uses <Link> for CTA
+          // which doesn't work correctly with anchor hrefs like "#contact"
+          <div className="h-[90vh] relative flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-moooi-cream via-moooi-sand to-moooi-gold opacity-30" />
+            <div className="relative z-10 text-center px-6 max-w-4xl">
+              <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 animate-fade-in">
+                Industrial Timber Supply You Can Build Your Business On
+              </h1>
+              <p className="text-xl md:text-2xl text-moooi-slate mb-8 animate-slide-up">
+                Your supply chain doesn't have room for inconsistency. Precision-manufactured solid oak furniture components with documented quality standards.
+              </p>
+              <a
+                href="#contact"
+                className="inline-block bg-moooi-charcoal text-white px-10 py-4 rounded-full font-medium hover:bg-moooi-gold hover:text-moooi-charcoal transition-all duration-300 transform hover:scale-105"
+              >
+                Request a Quote
+              </a>
+            </div>
+          </div>
         )}
       </section>
     )
@@ -1310,9 +1332,9 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
   }
 
   // Fallback for section errors
-  function SectionFallback({ name }: { name: string }) {
+  function SectionFallback({ name, id }: { name: string; id: string }) {
     return (
-      <section className="py-20 px-6 text-center bg-moooi-cream">
+      <section id={id} className="py-20 px-6 text-center bg-moooi-cream scroll-mt-20" aria-label={name}>
         <p className="text-moooi-slate">Unable to load {name} section.</p>
       </section>
     )
@@ -1325,35 +1347,35 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
   export default function SPAPageClient({ sections }: SPAPageClientProps) {
     return (
       <main>
-        <SectionErrorBoundary fallback={<SectionFallback name="Hero" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Hero" id="hero" />}>
           <HeroSection data={sections.hero} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="About" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="About" id="about" />}>
           <AboutSection data={sections.about} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="Oak Slabs" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Oak Slabs" id="oak-slabs" />}>
           <OakSlabsSection data={sections.oakSlabs} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="Warehouse" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Warehouse" id="warehouse" />}>
           <WarehouseSection data={sections.warehouse} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="Products" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Products" id="products" />}>
           <ProductsSection data={sections.products} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="Manufacturing" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Manufacturing" id="manufacturing" />}>
           <ManufacturingSection data={sections.manufacturing} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="Sustainability" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Sustainability" id="sustainability" />}>
           <SustainabilitySection data={sections.sustainability} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary fallback={<SectionFallback name="Contact" />}>
+        <SectionErrorBoundary fallback={<SectionFallback name="Contact" id="contact" />}>
           <ContactSection data={sections.contact} />
         </SectionErrorBoundary>
       </main>
