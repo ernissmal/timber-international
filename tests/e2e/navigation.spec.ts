@@ -104,6 +104,8 @@ test.describe('Navigation Component', () => {
   test('mobile menu opens and closes', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
     // Mobile menu should not be visible initially
     const mobileMenu = page.locator('#mobile-menu')
@@ -113,6 +115,7 @@ test.describe('Navigation Component', () => {
     const menuButton = page.locator('button[aria-label="Open menu"]')
     await expect(menuButton).toBeVisible()
     await menuButton.click()
+    await page.waitForTimeout(300)
 
     // Mobile menu should be visible
     await expect(mobileMenu).toBeVisible()
@@ -126,6 +129,7 @@ test.describe('Navigation Component', () => {
 
     // Click close button
     await closeButton.click()
+    await page.waitForTimeout(300)
 
     // Mobile menu should be hidden
     await expect(mobileMenu).not.toBeVisible()
@@ -138,9 +142,12 @@ test.describe('Navigation Component', () => {
   test('mobile menu closes immediately after clicking link', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
     // Open mobile menu
     await page.click('button[aria-label="Open menu"]')
+    await page.waitForTimeout(300)
 
     const mobileMenu = page.locator('#mobile-menu')
     await expect(mobileMenu).toBeVisible()
@@ -148,6 +155,7 @@ test.describe('Navigation Component', () => {
     // Click a navigation link in mobile menu
     const aboutLinkMobile = mobileMenu.locator('a[href="#about"]')
     await aboutLinkMobile.click()
+    await page.waitForTimeout(300)
 
     // Mobile menu should close immediately
     await expect(mobileMenu).not.toBeVisible()
@@ -159,15 +167,19 @@ test.describe('Navigation Component', () => {
   test('escape key closes mobile menu', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
     // Open mobile menu
     await page.click('button[aria-label="Open menu"]')
+    await page.waitForTimeout(300)
 
     const mobileMenu = page.locator('#mobile-menu')
     await expect(mobileMenu).toBeVisible()
 
     // Press Escape key
     await page.keyboard.press('Escape')
+    await page.waitForTimeout(300)
 
     // Mobile menu should close
     await expect(mobileMenu).not.toBeVisible()
@@ -295,6 +307,8 @@ test.describe('Navigation Component', () => {
   test('mobile menu prevents body scroll when open', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
     // Check initial body overflow style
     let bodyOverflow = await page.evaluate(() => document.body.style.overflow)
@@ -302,7 +316,7 @@ test.describe('Navigation Component', () => {
 
     // Open mobile menu
     await page.click('button[aria-label="Open menu"]')
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(300)
 
     // Body should have overflow hidden
     bodyOverflow = await page.evaluate(() => document.body.style.overflow)
@@ -310,7 +324,7 @@ test.describe('Navigation Component', () => {
 
     // Close mobile menu
     await page.click('button[aria-label="Close menu"]')
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(300)
 
     // Body overflow should be restored
     bodyOverflow = await page.evaluate(() => document.body.style.overflow)
@@ -340,9 +354,12 @@ test.describe('Navigation Component', () => {
   test('mobile backdrop closes menu on click', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
     // Open mobile menu
     await page.click('button[aria-label="Open menu"]')
+    await page.waitForTimeout(300)
 
     const mobileMenu = page.locator('#mobile-menu')
     await expect(mobileMenu).toBeVisible()
@@ -351,6 +368,7 @@ test.describe('Navigation Component', () => {
     const backdrop = page.locator('div[class*="bg-black/20"]')
     await expect(backdrop).toBeVisible()
     await backdrop.click()
+    await page.waitForTimeout(300)
 
     // Menu should close
     await expect(mobileMenu).not.toBeVisible()

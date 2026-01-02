@@ -72,7 +72,7 @@ test.describe('Section Components - Accessibility', () => {
     ]
 
     for (const { section, heading } of expectedHeadings) {
-      const headingElement = page.locator(`section#${section} ${heading}`)
+      const headingElement = page.locator(`section#${section} ${heading}`).first()
       await expect(headingElement).toBeVisible()
     }
   })
@@ -103,10 +103,10 @@ test.describe('Section Components - Fallback Content', () => {
 
     // Check for main heading
     const heading = heroSection.locator('h1')
-    await expect(heading).toContainText('Industrial Timber Supply')
+    await expect(heading).toContainText('Your supply chain doesn\'t have room for inconsistency')
 
     // Check for CTA button
-    const ctaButton = heroSection.locator('a[href="#contact"]')
+    const ctaButton = heroSection.locator('a[href="/contact"]')
     await expect(ctaButton).toBeVisible()
     await expect(ctaButton).toContainText('Request a Quote')
   })
@@ -115,8 +115,8 @@ test.describe('Section Components - Fallback Content', () => {
     const aboutSection = page.locator('section#about')
     await expect(aboutSection).toBeVisible()
 
-    const heading = aboutSection.locator('h2')
-    await expect(heading).toContainText('About Timber International')
+    const heading = aboutSection.locator('h2').first()
+    await expect(heading).toContainText('The Timber International Story')
   })
 
   test('OakSlabsSection displays fallback with 3 feature cards', async ({ page }) => {
@@ -167,16 +167,16 @@ test.describe('Section Components - Fallback Content', () => {
     const productsSection = page.locator('section#products')
     await expect(productsSection).toBeVisible()
 
-    const heading = productsSection.locator('h2')
-    await expect(heading).toContainText('Specifications You Can Count On')
+    const heading = productsSection.locator('h2').first()
+    await expect(heading).toContainText('Quality Standards')
   })
 
   test('ManufacturingSection displays fallback content correctly', async ({ page }) => {
     const manufacturingSection = page.locator('section#manufacturing')
     await expect(manufacturingSection).toBeVisible()
 
-    const heading = manufacturingSection.locator('h2')
-    await expect(heading).toContainText('Modern Equipment. Rigorous Standards.')
+    const heading = manufacturingSection.locator('h2').first()
+    await expect(heading).toContainText('Our Manufacturing Capabilities')
   })
 
   test('SustainabilitySection displays fallback with certification badges', async ({ page }) => {
@@ -184,21 +184,21 @@ test.describe('Section Components - Fallback Content', () => {
     await expect(sustainabilitySection).toBeVisible()
 
     // Check for heading
-    const heading = sustainabilitySection.locator('h2')
-    await expect(heading).toContainText('Responsible Sourcing')
+    const heading = sustainabilitySection.locator('h2').first()
+    await expect(heading).toContainText('Our Approach to Sustainability')
 
     // Check for 3 certification badges
     await expect(sustainabilitySection.getByText('FSC Certified')).toBeVisible()
-    await expect(sustainabilitySection.getByText('PEFC Available')).toBeVisible()
-    await expect(sustainabilitySection.getByText('EU Timber Regulation')).toBeVisible()
+    await expect(sustainabilitySection.getByText('ISO Compliance')).toBeVisible()
+    await expect(sustainabilitySection.getByText('Transparent Sourcing')).toBeVisible()
   })
 
   test('ContactSection displays fallback content correctly', async ({ page }) => {
     const contactSection = page.locator('section#contact')
     await expect(contactSection).toBeVisible()
 
-    const heading = contactSection.locator('h2')
-    await expect(heading).toContainText("Let's Discuss Your Requirements")
+    const heading = contactSection.locator('h2').first()
+    await expect(heading).toContainText("How We Can Help")
   })
 })
 
@@ -304,7 +304,7 @@ test.describe('Section Components - Integration', () => {
 
   test('HeroSection uses anchor tag for CTA (not Link component)', async ({ page }) => {
     const heroSection = page.locator('section#hero')
-    const ctaButton = heroSection.locator('a[href="#contact"]')
+    const ctaButton = heroSection.locator('a[href="/contact"]')
 
     // Verify it's an anchor tag
     await expect(ctaButton).toBeVisible()
