@@ -111,6 +111,8 @@ const pages = [
         _key: 'hero-about',
         heading: 'We scaled our operations',
         subheading: 'So you wouldn\'t have to compromise on quality. Timber International exists because businesses deserve better than the status quo.',
+        ctaText: 'Learn Our Story',
+        ctaLink: '#story-about',
       },
       {
         _type: 'editorialText',
@@ -174,6 +176,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _key: 'hero-products',
         heading: 'Specifications you can count on',
         subheading: 'Every order. Every time. Industrial volume with precision standards. FSC-certified sourcing with full chain of custody documentation.',
+        ctaText: 'View Products',
+        ctaLink: '#categories-products',
       },
       {
         _type: 'editorialText',
@@ -228,6 +232,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _key: 'hero-manufacturing',
         heading: 'Modern equipment',
         subheading: 'Rigorous standards. Consistent output. Industrial-scale operations backed by precision quality systems.',
+        ctaText: 'Our Capabilities',
+        ctaLink: '#capabilities-manufacturing',
       },
       {
         _type: 'editorialText',
@@ -303,6 +309,8 @@ The result? Consistent quality at volume. Every board manufactured to specificat
         _key: 'hero-sustainability',
         heading: 'Responsible sourcing',
         subheading: 'With full certification and compliance. FSC-certified timber with complete chain of custody documentation.',
+        ctaText: 'Our Certifications',
+        ctaLink: '#standards-sustainability',
       },
       {
         _type: 'editorialText',
@@ -363,6 +371,8 @@ We provide the certifications and documentation your procurement team needs for 
         _key: 'hero-contact',
         heading: 'Let\'s discuss your requirements',
         subheading: 'Our B2B team is ready to provide specifications, pricing, and partnership options.',
+        ctaText: 'Get Started',
+        ctaLink: '#options-contact',
       },
       {
         _type: 'featuresGrid',
