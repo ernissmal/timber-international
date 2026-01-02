@@ -10,7 +10,7 @@ interface SustainabilitySectionProps {
 
 export default function SustainabilitySection({ data }: SustainabilitySectionProps) {
   return (
-    <section id="sustainability" className="scroll-mt-20" aria-label="Sustainability">
+    <section id="sustainability" className="scroll-mt-20 bg-moooi-sand" aria-label="Sustainability">
       {data?.blocks && data.blocks.length > 0 ? (
         <BlockRenderer blocks={data.blocks as any} />
       ) : (

@@ -10,7 +10,7 @@ interface ProductsSectionProps {
 
 export default function ProductsSection({ data }: ProductsSectionProps) {
   return (
-    <section id="products" className="scroll-mt-20" aria-label="Products">
+    <section id="products" className="scroll-mt-20 bg-moooi-cream" aria-label="Products">
       {data?.blocks && data.blocks.length > 0 ? (
         <BlockRenderer blocks={data.blocks as any} />
       ) : (
