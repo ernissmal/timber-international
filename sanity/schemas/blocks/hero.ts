@@ -19,6 +19,20 @@ export default defineType({
       description: 'Supporting text below the headline',
     }),
     defineField({
+      name: 'backgroundType',
+      title: 'Background Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Video', value: 'video' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'image',
+      description: 'Choose between image or video background',
+    }),
+    defineField({
       name: 'backgroundImage',
       title: 'Background Image',
       type: 'image',
@@ -26,6 +40,27 @@ export default defineType({
         hotspot: true,
       },
       description: 'Full-screen background image (recommended: 1920x1080+)',
+      hidden: ({ parent }) => parent?.backgroundType === 'video',
+    }),
+    defineField({
+      name: 'backgroundVideo',
+      title: 'Background Video',
+      type: 'file',
+      options: {
+        accept: 'video/*',
+      },
+      description: 'Full-screen background video (MP4 recommended, max 50MB for performance)',
+      hidden: ({ parent }) => parent?.backgroundType !== 'video',
+    }),
+    defineField({
+      name: 'videoPoster',
+      title: 'Video Poster Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Fallback image shown while video loads (recommended)',
+      hidden: ({ parent }) => parent?.backgroundType !== 'video',
     }),
     defineField({
       name: 'ctaText',
@@ -56,11 +91,12 @@ export default defineType({
     select: {
       title: 'heading',
       media: 'backgroundImage',
+      backgroundType: 'backgroundType',
     },
-    prepare({ title, media }) {
+    prepare({ title, media, backgroundType }) {
       return {
         title: title || 'Hero Section',
-        subtitle: 'Hero',
+        subtitle: `Hero (${backgroundType === 'video' ? 'Video' : 'Image'})`,
         media,
       }
     },

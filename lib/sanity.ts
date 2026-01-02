@@ -92,14 +92,15 @@ function transformSanityBlocks(blocks: SanityBlock[] | null | undefined): PageBl
     const { _type, _key, ...rest } = block
     const __typename = typeToTypename[_type] || `PageBlocks${_type.charAt(0).toUpperCase()}${_type.slice(1)}`
 
-    // Transform image fields to URLs
+    // Transform image and video fields to URLs
     const transformed: any = {
       __typename,
       _key,
     }
 
     for (const [key, value] of Object.entries(rest)) {
-      if (key === 'backgroundImage' || key === 'image') {
+      // Handle image fields (backgroundImage, image, videoPoster)
+      if (key === 'backgroundImage' || key === 'image' || key === 'videoPoster') {
         // Convert Sanity image to URL
         if (value?.asset) {
           transformed[key] = urlFor(value).url()
@@ -107,7 +108,18 @@ function transformSanityBlocks(blocks: SanityBlock[] | null | undefined): PageBl
           // Already a URL string
           transformed[key] = value
         }
-      } else if (key === 'items' && Array.isArray(value)) {
+      }
+      // Handle video/file fields (backgroundVideo, video)
+      else if (key === 'backgroundVideo' || key === 'video') {
+        // Extract URL from Sanity file asset
+        if (value?.asset?.url) {
+          transformed[key] = value.asset.url
+        } else if (typeof value === 'string') {
+          // Already a URL string
+          transformed[key] = value
+        }
+      }
+      else if (key === 'items' && Array.isArray(value)) {
         // Transform items (like in featuresGrid)
         transformed.items = value.map((item: any) => ({
           ...item,

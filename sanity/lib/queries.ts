@@ -84,6 +84,7 @@ export const homePageQuery = groq`
 
 // Reusable block projection - matches existing pageBySlugQuery pattern
 // NOTE: Images keep asset structure - urlFor() converts to URLs in transform
+// NOTE: Videos use file type with asset reference for URL resolution
 const blockProjection = `{
   _type,
   _key,
@@ -102,7 +103,24 @@ const blockProjection = `{
   quote,
   author,
   role,
+  size,
+  overlayPosition,
+  backgroundType,
   backgroundImage {
+    _type,
+    asset,
+    alt,
+    hotspot,
+    crop
+  },
+  backgroundVideo {
+    _type,
+    asset->{
+      _id,
+      url
+    }
+  },
+  videoPoster {
     _type,
     asset,
     alt,
@@ -115,6 +133,13 @@ const blockProjection = `{
     alt,
     hotspot,
     crop
+  },
+  video {
+    _type,
+    asset->{
+      _id,
+      url
+    }
   },
   items[] {
     _key,

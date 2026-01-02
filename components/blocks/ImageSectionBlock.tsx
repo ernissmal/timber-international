@@ -9,7 +9,10 @@ interface ImageSectionBlockProps {
     heading?: string
     text?: string
     image?: string
-    videoSrc?: string
+    video?: string
+    videoSrc?: string // Legacy field name
+    videoPoster?: string
+    backgroundType?: 'image' | 'video'
     ctaText?: string
     ctaLink?: string
     overlayPosition?: string
@@ -28,6 +31,10 @@ export default function ImageSectionBlock({ data }: ImageSectionBlockProps) {
   const theme = data.theme || 'light'
   const glassClass = theme === 'dark' ? 'glass-dark text-white' : 'glass-light'
 
+  // Support both new 'video' field and legacy 'videoSrc' field
+  const videoUrl = data.video || data.videoSrc
+  const hasVideo = data.backgroundType === 'video' && videoUrl
+
   const positionClass = {
     center: 'items-center justify-center',
     'bottom-left': 'items-end justify-start',
@@ -38,16 +45,17 @@ export default function ImageSectionBlock({ data }: ImageSectionBlockProps) {
     <section ref={ref} className="section-fullscreen relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        {data.videoSrc ? (
+        {hasVideo ? (
           <motion.video
             style={{ y }}
             autoPlay
             loop
             muted
             playsInline
+            poster={data.videoPoster}
             className="w-full h-full object-cover"
           >
-            <source src={data.videoSrc} type="video/mp4" />
+            <source src={videoUrl} type="video/mp4" />
           </motion.video>
         ) : data.image ? (
           <motion.div

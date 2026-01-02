@@ -9,6 +9,9 @@ interface HeroBlockProps {
     ctaText?: string
     ctaLink?: string
     backgroundImage?: string
+    backgroundVideo?: string
+    videoPoster?: string
+    backgroundType?: 'image' | 'video'
     size?: string
   }
 }
@@ -21,6 +24,9 @@ export default function HeroBlock({ data }: HeroBlockProps) {
       ctaText={data.ctaText || undefined}
       ctaLink={data.ctaLink || undefined}
       backgroundImage={data.backgroundImage || undefined}
+      backgroundVideo={data.backgroundVideo || undefined}
+      videoPoster={data.videoPoster || undefined}
+      backgroundType={(data.backgroundType as 'image' | 'video') || 'image'}
       size={(data.size as 'default' | 'small') || 'default'}
     />
   )

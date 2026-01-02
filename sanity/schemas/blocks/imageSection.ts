@@ -2,15 +2,48 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'imageSection',
-  title: 'Full-Width Image Section',
+  title: 'Full-Width Media Section',
   type: 'object',
   fields: [
+    defineField({
+      name: 'backgroundType',
+      title: 'Background Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Video', value: 'video' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'image',
+      description: 'Choose between image or video background',
+    }),
     defineField({
       name: 'image',
       title: 'Background Image',
       type: 'image',
       options: { hotspot: true },
-      description: 'Required unless using a video background',
+      description: 'Full-width background image',
+      hidden: ({ parent }) => parent?.backgroundType === 'video',
+    }),
+    defineField({
+      name: 'video',
+      title: 'Background Video',
+      type: 'file',
+      options: {
+        accept: 'video/*',
+      },
+      description: 'Full-width background video (MP4 recommended)',
+      hidden: ({ parent }) => parent?.backgroundType !== 'video',
+    }),
+    defineField({
+      name: 'videoPoster',
+      title: 'Video Poster Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Fallback image shown while video loads',
+      hidden: ({ parent }) => parent?.backgroundType !== 'video',
     }),
     defineField({
       name: 'heading',
@@ -51,11 +84,12 @@ export default defineType({
     select: {
       title: 'heading',
       media: 'image',
+      backgroundType: 'backgroundType',
     },
-    prepare({ title, media }) {
+    prepare({ title, media, backgroundType }) {
       return {
-        title: title || 'Image Section',
-        subtitle: 'Image Section',
+        title: title || 'Media Section',
+        subtitle: `Media Section (${backgroundType === 'video' ? 'Video' : 'Image'})`,
         media,
       }
     },
