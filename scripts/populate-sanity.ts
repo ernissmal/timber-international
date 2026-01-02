@@ -409,6 +409,149 @@ We provide the certifications and documentation your procurement team needs for 
       },
     ],
   },
+  {
+    _type: 'page',
+    title: 'Oak Slabs',
+    slug: { _type: 'slug', current: 'oak-slabs' },
+    description: 'Premium solid oak slabs manufactured to your specifications',
+    seo: {
+      title: 'Solid Oak Slabs - Industrial Scale Manufacturing | Timber International',
+      description: 'Premium solid oak slabs manufactured to your specifications. Custom dimensions, kiln dried, FSC certified. Request a quote today.',
+    },
+    blocks: [
+      {
+        _type: 'hero',
+        _key: 'hero-oak-slabs',
+        heading: 'Solid Oak. Industrial Scale.',
+        subheading: 'Premium solid oak slabs manufactured to your specifications. Consistent quality, reliable supply, competitive pricing.',
+        ctaText: 'Request Specifications',
+        ctaLink: '#contact',
+      },
+      {
+        _type: 'editorialText',
+        _key: 'intro-oak-slabs',
+        heading: 'Manufacturing Excellence',
+        content: 'Every slab is precision-cut to your exact specifications using state-of-the-art CNC machinery. Tolerances within ±0.5mm ensure consistent quality across your entire order.\n\nOur kiln-drying process controls moisture content to 8-12% for dimensional stability and longevity. Complete documentation provided for quality assurance.',
+      },
+      {
+        _type: 'featuresGrid',
+        _key: 'features-oak-slabs',
+        heading: 'Product Specifications',
+        items: [
+          {
+            _key: 'feature-oak-1',
+            title: 'Custom Dimensions',
+            description: 'Cut to your exact specifications with precision CNC machinery. Tolerances within ±0.5mm.',
+          },
+          {
+            _key: 'feature-oak-2',
+            title: 'Kiln Dried',
+            description: 'Moisture content controlled to 8-12% for stability and longevity. Documented drying records available.',
+          },
+          {
+            _key: 'feature-oak-3',
+            title: 'FSC Certified',
+            description: 'Responsibly sourced from sustainable European forests. Chain of custody documentation provided.',
+          },
+          {
+            _key: 'feature-oak-4',
+            title: 'Industrial Capacity',
+            description: 'Consistent supply at volume. Reliable lead times and flexible ordering structures.',
+          },
+        ],
+      },
+      {
+        _type: 'cta',
+        _key: 'cta-oak-slabs',
+        heading: 'Partner with Timber International',
+        text: 'Request detailed specifications and pricing for your solid oak slab requirements.',
+        buttonText: 'Contact Our Team',
+        buttonLink: '#contact',
+      },
+    ],
+  },
+  {
+    _type: 'page',
+    title: 'Warehouse',
+    slug: { _type: 'slug', current: 'warehouse' },
+    description: 'Climate-controlled storage and efficient logistics',
+    seo: {
+      title: 'Warehouse & Logistics | Timber International',
+      description: '10,000m² climate-controlled storage facilities. Pan-European delivery with 48-hour dispatch for in-stock items.',
+    },
+    blocks: [
+      {
+        _type: 'hero',
+        _key: 'hero-warehouse',
+        heading: 'Storage & Logistics Excellence',
+        subheading: 'Modern warehouse facilities ensure your timber is stored properly and shipped efficiently to meet your production schedules.',
+        ctaText: 'Learn More',
+        ctaLink: '#facilities-warehouse',
+      },
+      {
+        _type: 'editorialText',
+        _key: 'intro-warehouse',
+        heading: 'Climate-Controlled Facilities',
+        content: 'Our 10,000m² warehouse maintains optimal conditions for timber storage. Temperature and humidity controls preserve wood quality and prevent dimensional changes during storage.\n\nIntegrated inventory management systems provide real-time visibility into stock levels and order status. Your account manager has complete transparency into availability and lead times.',
+      },
+      {
+        _type: 'featuresGrid',
+        _key: 'facilities-warehouse',
+        heading: 'Warehouse Capabilities',
+        items: [
+          {
+            _key: 'facility-1',
+            title: '10,000m² Storage',
+            description: 'Climate-controlled facilities for optimal timber preservation. Organized inventory for efficient order fulfillment.',
+          },
+          {
+            _key: 'facility-2',
+            title: 'Pan-European Delivery',
+            description: 'Reliable logistics network covering all major markets. Consolidated shipments and flexible delivery scheduling.',
+          },
+          {
+            _key: 'facility-3',
+            title: '48-Hour Dispatch',
+            description: 'In-stock items shipped within 2 business days. Transparent order tracking and delivery confirmation.',
+          },
+        ],
+      },
+      {
+        _type: 'stats',
+        _key: 'stats-warehouse',
+        items: [
+          {
+            _key: 'stat-w1',
+            value: '10,000m²',
+            label: 'Storage Capacity',
+          },
+          {
+            _key: 'stat-w2',
+            value: '48h',
+            label: 'Dispatch Time',
+          },
+          {
+            _key: 'stat-w3',
+            value: '99%',
+            label: 'On-Time Delivery',
+          },
+          {
+            _key: 'stat-w4',
+            value: '24/7',
+            label: 'Inventory Visibility',
+          },
+        ],
+      },
+      {
+        _type: 'cta',
+        _key: 'cta-warehouse',
+        heading: 'Streamline Your Supply Chain',
+        text: 'Discuss logistics requirements and delivery scheduling with our operations team.',
+        buttonText: 'Contact Logistics',
+        buttonLink: '#contact',
+      },
+    ],
+  },
 ]
 
 async function populateSanity() {

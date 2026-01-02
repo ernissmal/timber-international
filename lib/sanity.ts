@@ -1,5 +1,5 @@
 import { client } from '@/sanity/lib/client'
-import { homePageQuery, pageBySlugQuery, allPagesQuery } from '@/sanity/lib/queries'
+import { homePageQuery, pageBySlugQuery, allPagesQuery, allSectionsQuery } from '@/sanity/lib/queries'
 import { urlFor } from '@/sanity/lib/image'
 
 // Types for Sanity page data
@@ -9,17 +9,68 @@ export interface SanityBlock {
   [key: string]: any
 }
 
-export interface SanityPage {
+// Transformed block type (after transformSanityBlocks)
+export interface PageBlock {
+  __typename: string
+  _key: string
+  [key: string]: any
+}
+
+// Raw response from Sanity (before transformation)
+export interface RawSanityPage {
   _id: string
   title: string
   slug: string
   description?: string
-  blocks: SanityBlock[]
+  blocks: SanityBlock[]  // Raw blocks with _type
   seo?: {
     title?: string
     description?: string
     ogImage?: any
   }
+}
+
+// Transformed page (after transformSanityBlocks)
+export interface SanityPage {
+  _id: string
+  title: string
+  slug: string
+  description?: string
+  blocks: PageBlock[]  // Transformed blocks with __typename
+  seo?: {
+    title?: string
+    description?: string
+    ogImage?: any
+  }
+}
+
+// Raw sections data from Sanity (before transformation)
+interface RawAllSectionsData {
+  hero: RawSanityPage | null
+  about: RawSanityPage | null
+  oakSlabs: RawSanityPage | null
+  warehouse: RawSanityPage | null
+  products: RawSanityPage | null
+  manufacturing: RawSanityPage | null
+  sustainability: RawSanityPage | null
+  contact: RawSanityPage | null
+}
+
+// Consolidated sections data for SPA (after transformation)
+export interface AllSectionsData {
+  hero: SanityPage | null
+  about: SanityPage | null
+  oakSlabs: SanityPage | null
+  warehouse: SanityPage | null
+  products: SanityPage | null
+  manufacturing: SanityPage | null
+  sustainability: SanityPage | null
+  contact: SanityPage | null
+}
+
+// Section component props pattern
+export interface SectionProps {
+  data: SanityPage | null
 }
 
 // Map Sanity _type to __typename format expected by BlockRenderer
@@ -34,7 +85,7 @@ const typeToTypename: Record<string, string> = {
 }
 
 // Transform Sanity blocks to format expected by BlockRenderer
-function transformSanityBlocks(blocks: SanityBlock[] | null | undefined): any[] {
+function transformSanityBlocks(blocks: SanityBlock[] | null | undefined): PageBlock[] {
   if (!blocks || !Array.isArray(blocks)) return []
 
   return blocks.map((block) => {
@@ -81,7 +132,7 @@ export async function getSanityPage(slug: string): Promise<SanityPage | null> {
     const query = isHome ? homePageQuery : pageBySlugQuery
     const params = isHome ? {} : { slug }
 
-    const page = await client.fetch<SanityPage>(query, params)
+    const page = await client.fetch<RawSanityPage>(query, params)
 
     if (!page) return null
 
@@ -158,5 +209,63 @@ export async function getPagePropsFromSanity(slug: string): Promise<SanityPagePr
         _values: {},
       },
     },
+  }
+}
+
+// Empty sections data for error fallback
+const emptySections: AllSectionsData = {
+  hero: null,
+  about: null,
+  oakSlabs: null,
+  warehouse: null,
+  products: null,
+  manufacturing: null,
+  sustainability: null,
+  contact: null,
+}
+
+/**
+ * Fetches all section data for the SPA in a single query.
+ * Returns null for any section that doesn't exist in Sanity.
+ * On complete failure, returns empty sections object (all null).
+ *
+ * Uses existing transformSanityBlocks() for consistent block transformation:
+ * - _type → __typename conversion
+ * - Image asset refs → URLs via urlFor()
+ */
+export async function getAllSections(): Promise<AllSectionsData> {
+  try {
+    const data = await client.fetch<RawAllSectionsData>(allSectionsQuery, {}, {
+      next: { revalidate: 60 } // Revalidate every 60 seconds
+    })
+
+    if (!data) {
+      console.warn('getAllSections: No data returned from Sanity')
+      return emptySections
+    }
+
+    // Transform blocks for each section using EXISTING transformSanityBlocks
+    // This function already handles _type → __typename and asset._ref → URL
+    const transformSection = (section: RawSanityPage | null): SanityPage | null => {
+      if (!section) return null
+      return {
+        ...section,
+        blocks: transformSanityBlocks(section.blocks),
+      }
+    }
+
+    return {
+      hero: transformSection(data.hero),
+      about: transformSection(data.about),
+      oakSlabs: transformSection(data.oakSlabs),
+      warehouse: transformSection(data.warehouse),
+      products: transformSection(data.products),
+      manufacturing: transformSection(data.manufacturing),
+      sustainability: transformSection(data.sustainability),
+      contact: transformSection(data.contact),
+    }
+  } catch (error) {
+    console.error('getAllSections: Error fetching sections:', error)
+    return emptySections
   }
 }

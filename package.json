@@ -10,7 +10,8 @@
     "generate:types": "payload generate:types",
     "sanity:dev": "sanity dev",
     "sanity:deploy": "sanity deploy",
-    "migrate:sanity": "npx ts-node --esm scripts/migrate-to-sanity.ts"
+    "migrate:sanity": "npx ts-node --esm scripts/migrate-to-sanity.ts",
+    "verify:sections": "npx tsx scripts/verify-spa-sections.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

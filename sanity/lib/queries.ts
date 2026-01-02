@@ -82,6 +82,157 @@ export const homePageQuery = groq`
   }
 `
 
+// Reusable block projection - matches existing pageBySlugQuery pattern
+// NOTE: Images keep asset structure - urlFor() converts to URLs in transform
+const blockProjection = `{
+  _type,
+  _key,
+  heading,
+  subheading,
+  text,
+  content,
+  eyebrow,
+  alignment,
+  backgroundColor,
+  buttonText,
+  buttonLink,
+  ctaText,
+  ctaLink,
+  stats,
+  quote,
+  author,
+  role,
+  backgroundImage {
+    _type,
+    asset,
+    alt,
+    hotspot,
+    crop
+  },
+  image {
+    _type,
+    asset,
+    alt,
+    hotspot,
+    crop
+  },
+  items[] {
+    _key,
+    title,
+    description,
+    icon,
+    stat,
+    label,
+    value,
+    image {
+      _type,
+      asset,
+      alt
+    }
+  }
+}`
+
+// Consolidated query for SPA - fetches all sections at once
+// Uses nested seo{} to match existing SanityPage interface
+export const allSectionsQuery = groq`{
+  "hero": *[_type == "page" && slug.current == "home"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "about": *[_type == "page" && slug.current == "about"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "oakSlabs": *[_type == "page" && slug.current == "oak-slabs"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "warehouse": *[_type == "page" && slug.current == "warehouse"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "products": *[_type == "page" && slug.current == "products"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "manufacturing": *[_type == "page" && slug.current == "manufacturing"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "sustainability": *[_type == "page" && slug.current == "sustainability"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  },
+  "contact": *[_type == "page" && slug.current == "contact"][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    seo {
+      title,
+      description,
+      ogImage
+    },
+    blocks[] ${blockProjection}
+  }
+}`
+
 // Get site settings (if we add a settings document)
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
