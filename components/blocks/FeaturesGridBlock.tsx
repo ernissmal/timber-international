@@ -39,10 +39,10 @@ function isMaterialIcon(name: string): boolean {
 // Dynamic icon component - supports Material Icons
 function DynamicIcon({ name, className }: { name: string; className?: string }) {
   if (isMaterialIcon(name)) {
-    return <MaterialIcon name={name} size="2xl" className={className} />
+    return <MaterialIcon name={name} size="xl" className={className} />
   }
   // Fallback for unknown icons
-  return <MaterialIcon name="help" size="2xl" className={className} />
+  return <MaterialIcon name="help" size="xl" className={className} />
 }
 
 export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
@@ -91,9 +91,9 @@ export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
                     className="w-full h-full object-cover"
                   />
                 ) : item.icon ? (
-                  <DynamicIcon name={item.icon} className="w-16 h-16 text-moooi-charcoal group-hover:text-moooi-gold transition-colors duration-300" />
+                  <DynamicIcon name={item.icon} className="text-moooi-charcoal group-hover:text-moooi-gold transition-colors duration-300" />
                 ) : (
-                  <Box className="w-16 h-16 text-gray-400" />
+                  <Box className="w-24 h-24 text-gray-400" />
                 )}
               </div>
               <h3 className="text-3xl font-bold mb-4 group-hover:text-gray-600 transition-colors">

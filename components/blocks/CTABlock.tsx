@@ -34,7 +34,7 @@ export default function CTABlock({ data }: CTABlockProps) {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
           {data.icon && (
-            <div className="mb-8">
+            <div className="mb-10">
               <MaterialIcon
                 name={data.icon}
                 size="2xl"

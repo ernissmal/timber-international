@@ -6,11 +6,11 @@ interface MaterialIconProps {
 }
 
 const sizeClasses = {
-  sm: 'text-lg',
-  md: 'text-2xl',
-  lg: 'text-3xl',
-  xl: 'text-4xl',
-  '2xl': 'text-5xl',
+  sm: 'text-3xl',
+  md: 'text-4xl',
+  lg: 'text-5xl',
+  xl: 'text-6xl',
+  '2xl': 'text-7xl',
 }
 
 /**
