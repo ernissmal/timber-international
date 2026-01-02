@@ -81,7 +81,7 @@ export default function EditorialTextBlock({ data }: EditorialTextBlockProps) {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
           {data.heading && (
-            <h2 className={`display-medium mb-12 ${hasBackgroundImage ? 'text-white' : ''}`}>
+            <h2 className={`display-medium mb-12 text-center ${hasBackgroundImage ? 'text-white' : ''}`}>
               {data.heading}
             </h2>
           )}

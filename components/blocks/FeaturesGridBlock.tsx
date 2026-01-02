@@ -46,11 +46,7 @@ function DynamicIcon({ name, className }: { name: string; className?: string }) 
 }
 
 export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
-  // Max 4 items per row, each taking 25% of available space
-  const itemCount = Math.min(data.items?.length || 0, 4)
-
-  // Always use 4-column grid on large screens for consistent 25% width per item
-  const gridCols = 'sm:grid-cols-2 lg:grid-cols-4'
+  const itemCount = data.items?.length || 0
 
   return (
     <section className="content-block content-wide py-32">
@@ -60,13 +56,14 @@ export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="display-medium mb-20"
+          className="display-medium mb-20 text-center"
         >
           {data.heading}
         </motion.h2>
       )}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
+      {/* Flexbox with wrap for centering fewer than 4 items */}
+      <div className="flex flex-wrap justify-center gap-12">
         {data.items?.map((item, index) => {
           if (!item) return null
 
@@ -106,15 +103,18 @@ export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
             </motion.div>
           )
 
+          // Each item takes 25% width on large screens (w-full on mobile, w-1/2 on sm, ~25% on lg)
+          const itemWrapper = "w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(25%-2.25rem)]"
+
           if (item.link) {
             return (
-              <Link key={index} href={item.link}>
+              <Link key={index} href={item.link} className={itemWrapper}>
                 {content}
               </Link>
             )
           }
 
-          return <div key={index}>{content}</div>
+          return <div key={index} className={itemWrapper}>{content}</div>
         })}
       </div>
     </section>

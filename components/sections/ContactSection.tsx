@@ -33,14 +33,14 @@ export default function ContactSection({ data }: ContactSectionProps) {
             </p>
           </motion.div>
 
-          {/* Contact Info Grid - max 4 items, each 25% width */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          {/* Contact Info - flexbox for centering 3 items */}
+          <div className="flex flex-wrap justify-center gap-8 mb-12">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-center p-8 bg-white rounded-2xl shadow-sm"
+              className="text-center p-8 bg-white rounded-2xl shadow-sm w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]"
             >
               <MaterialIcon name="mail" size="lg" className="text-moooi-gold mb-4" />
               <h3 className="text-xl font-semibold mb-2">Email Us</h3>
@@ -54,7 +54,7 @@ export default function ContactSection({ data }: ContactSectionProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-center p-8 bg-white rounded-2xl shadow-sm"
+              className="text-center p-8 bg-white rounded-2xl shadow-sm w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]"
             >
               <MaterialIcon name="call" size="lg" className="text-moooi-gold mb-4" />
               <h3 className="text-xl font-semibold mb-2">Call Us</h3>
@@ -68,7 +68,7 @@ export default function ContactSection({ data }: ContactSectionProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-center p-8 bg-white rounded-2xl shadow-sm"
+              className="text-center p-8 bg-white rounded-2xl shadow-sm w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]"
             >
               <MaterialIcon name="location_on" size="lg" className="text-moooi-gold mb-4" />
               <h3 className="text-xl font-semibold mb-2">Visit Us</h3>

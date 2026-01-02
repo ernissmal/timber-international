@@ -40,8 +40,8 @@ export default function StatsBlock({ data }: StatsBlockProps) {
           </motion.h2>
         )}
 
-        {/* Max 4 items per row, each taking 25% of available space */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Flexbox with wrap for centering fewer than 4 items */}
+        <div className="flex flex-wrap justify-center gap-8">
           {data.items?.map((item, index) => {
             if (!item) return null
 
@@ -56,7 +56,7 @@ export default function StatsBlock({ data }: StatsBlockProps) {
                   delay: index * 0.1,
                   ease: [0.16, 1, 0.3, 1],
                 }}
-                className="text-center"
+                className="text-center w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]"
               >
                 <div className="text-5xl md:text-6xl font-bold mb-2">
                   {item.value}
