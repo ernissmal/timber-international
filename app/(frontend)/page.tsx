@@ -1,11 +1,28 @@
-import { getPageProps } from '@/lib/tina'
-import HomePageClient from './page-client'
+import { Suspense } from 'react'
+import { getAllSections } from '@/lib/sanity'
+import SPAPageClient from './page-client'
 
-// Use dynamic rendering to avoid build-time TinaCMS fetch issues
-export const dynamic = 'force-dynamic'
+// Revalidate every 60 seconds
+export const revalidate = 60
+
+// Loading skeleton for sections
+function SectionsLoading() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-screen bg-moooi-cream" />
+      <div className="h-96 bg-white" />
+      <div className="h-96 bg-moooi-sand" />
+      <div className="h-96 bg-white" />
+    </div>
+  )
+}
 
 export default async function HomePage() {
-  const props = await getPageProps('home')
+  const sections = await getAllSections()
 
-  return <HomePageClient {...props} />
+  return (
+    <Suspense fallback={<SectionsLoading />}>
+      <SPAPageClient sections={sections} />
+    </Suspense>
+  )
 }

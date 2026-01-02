@@ -1,41 +1,97 @@
 'use client'
 
-import Hero from '@/components/Hero'
-import { BlockRenderer } from '@/components/blocks'
-import type { TinaPageProps } from '@/lib/tina'
+import { Component, ReactNode } from 'react'
+import {
+  HeroSection,
+  AboutSection,
+  OakSlabsSection,
+  WarehouseSection,
+  ProductsSection,
+  ManufacturingSection,
+  SustainabilitySection,
+  ContactSection,
+} from '@/components/sections'
+import type { AllSectionsData } from '@/lib/sanity'
 
-// Feature flag: use Sanity mode (no useTina hook needed)
-const USE_SANITY = process.env.NEXT_PUBLIC_USE_SANITY === 'true'
+// Error boundary for section failures
+interface ErrorBoundaryProps {
+  children: ReactNode
+  fallback: ReactNode
+}
 
-export default function HomePageClient(props: TinaPageProps) {
-  // When using Sanity, we don't need the useTina hook
-  // The data is already fetched and ready to use
-  const content = props.data.page
+interface ErrorBoundaryState {
+  hasError: boolean
+}
 
-  // If blocks exist, render them using BlockRenderer
-  if (content.blocks && content.blocks.length > 0) {
-    return <BlockRenderer blocks={content.blocks} />
+class SectionErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props)
+    this.state = { hasError: false }
   }
 
-  // Fallback to legacy hero-based rendering
-  return (
-    <>
-      <Hero
-        heading={content.hero?.heading || "Industrial Timber Supply You Can Build Your Business On"}
-        subheading={content.hero?.subheading || "Your supply chain doesn't have room for inconsistency. Precision-manufactured solid oak furniture components with documented quality standards and the capacity to scale."}
-        ctaText="Request a Quote"
-        ctaLink="/contact"
-      />
+  static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true }
+  }
 
-      {/* Legacy content notice */}
-      <section className="content-block bg-yellow-50 py-12">
-        <div className="content-narrow text-center">
-          <p className="text-yellow-800">
-            This page is using legacy content format.
-            Please add blocks in the CMS admin to use the new block-based layout.
-          </p>
-        </div>
-      </section>
-    </>
+  componentDidCatch(error: Error) {
+    console.error('Section render error:', error)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback
+    }
+    return this.props.children
+  }
+}
+
+// Fallback for section errors
+function SectionFallback({ name, id }: { name: string; id: string }) {
+  return (
+    <section id={id} className="py-20 px-6 text-center bg-moooi-cream scroll-mt-20" aria-label={name}>
+      <p className="text-moooi-slate">Unable to load {name} section.</p>
+    </section>
+  )
+}
+
+interface SPAPageClientProps {
+  sections: AllSectionsData
+}
+
+export default function SPAPageClient({ sections }: SPAPageClientProps) {
+  return (
+    <main>
+      <SectionErrorBoundary fallback={<SectionFallback name="Hero" id="hero" />}>
+        <HeroSection data={sections.hero} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="About" id="about" />}>
+        <AboutSection data={sections.about} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="Oak Slabs" id="oak-slabs" />}>
+        <OakSlabsSection data={sections.oakSlabs} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="Warehouse" id="warehouse" />}>
+        <WarehouseSection data={sections.warehouse} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="Products" id="products" />}>
+        <ProductsSection data={sections.products} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="Manufacturing" id="manufacturing" />}>
+        <ManufacturingSection data={sections.manufacturing} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="Sustainability" id="sustainability" />}>
+        <SustainabilitySection data={sections.sustainability} />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary fallback={<SectionFallback name="Contact" id="contact" />}>
+        <ContactSection data={sections.contact} />
+      </SectionErrorBoundary>
+    </main>
   )
 }
