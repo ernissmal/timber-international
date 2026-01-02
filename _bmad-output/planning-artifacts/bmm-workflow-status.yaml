@@ -11,9 +11,9 @@ workflow_path: "method-brownfield.yaml"
 # Current phase and next action
 current_phase: 4
 current_phase_name: "Implementation"
-next_workflow: "sprint-planning"
+next_workflow: "create-story"
 next_agent: "sm"
-next_command: "/bmad:bmm:workflows:sprint-planning"
+next_command: "/bmad:bmm:workflows:create-story"
 
 workflow_status:
   # Phase 0: Documentation
@@ -80,11 +80,19 @@ workflow_status:
     name: "Implementation"
     workflows:
       - id: "sprint-planning"
+        status: "completed"
+        completed_date: "2026-01-02"
+        artifact: "_bmad-output/implementation-artifacts/sprint-status.yaml"
+      - id: "create-tech-spec"
+        status: "completed"
+        completed_date: "2026-01-02"
+        artifact: "_bmad-output/implementation-artifacts/tech-spec-spa-restructure.md"
+      - id: "create-story"
         status: "required"
-        note: "Next step - create sprint tracking"
+        note: "Next step - create first story file"
       - id: "dev-story"
         status: "pending"
-        note: "Execute after sprint-planning"
+        note: "Execute after story is created"
 
 # Epic tracking
 epics:
@@ -111,6 +119,9 @@ artifacts:
     created: "2026-01-02"
   - name: "Epic 001"
     path: "_bmad-output/planning-artifacts/epic-001-spa-restructure.md"
+    created: "2026-01-02"
+  - name: "Tech Spec - SPA Restructure"
+    path: "_bmad-output/implementation-artifacts/tech-spec-spa-restructure.md"
     created: "2026-01-02"
 
 # Notes
