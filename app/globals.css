@@ -1,11 +1,8 @@
-/* Google Material Symbols */
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Material Symbols styling */
+/* Material Symbols styling - font loaded via layout.tsx Script */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;

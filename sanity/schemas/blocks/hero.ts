@@ -44,12 +44,19 @@ export default defineType({
     }),
     defineField({
       name: 'backgroundVideo',
-      title: 'Background Video',
+      title: 'Background Video (Upload)',
       type: 'file',
       options: {
         accept: 'video/*',
       },
-      description: 'Full-screen background video (MP4 recommended, max 50MB for performance)',
+      description: 'Upload video file (MP4 recommended, max 100MB). For larger videos, use the URL field below.',
+      hidden: ({ parent }) => parent?.backgroundType !== 'video',
+    }),
+    defineField({
+      name: 'backgroundVideoUrl',
+      title: 'Background Video URL (Alternative)',
+      type: 'url',
+      description: 'External video URL. Use this for large videos hosted elsewhere (e.g., /uploads/backgrounds/hero-video.mp4)',
       hidden: ({ parent }) => parent?.backgroundType !== 'video',
     }),
     defineField({

@@ -37,6 +37,19 @@ export default defineType({
       description: 'Right column content (only for two-column layout)',
     }),
     defineField({
+      name: 'backgroundType',
+      title: 'Background Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Solid Color', value: 'color' },
+          { title: 'Image', value: 'image' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'color',
+    }),
+    defineField({
       name: 'backgroundColor',
       title: 'Background Color',
       type: 'string',
@@ -48,6 +61,26 @@ export default defineType({
         ],
       },
       initialValue: 'white',
+      hidden: ({ parent }) => parent?.backgroundType === 'image',
+    }),
+    defineField({
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Full-width background image',
+      hidden: ({ parent }) => parent?.backgroundType !== 'image',
+    }),
+    defineField({
+      name: 'overlayOpacity',
+      title: 'Overlay Opacity',
+      type: 'number',
+      description: 'Dark overlay opacity (0-100) to improve text readability',
+      validation: (Rule) => Rule.min(0).max(100),
+      initialValue: 50,
+      hidden: ({ parent }) => parent?.backgroundType !== 'image',
     }),
   ],
   preview: {

@@ -106,6 +106,7 @@ const blockProjection = `{
   size,
   overlayPosition,
   backgroundType,
+  overlayOpacity,
   backgroundImage {
     _type,
     asset,
@@ -120,6 +121,7 @@ const blockProjection = `{
       url
     }
   },
+  backgroundVideoUrl,
   videoPoster {
     _type,
     asset,

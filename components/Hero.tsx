@@ -7,6 +7,7 @@ interface HeroProps {
   ctaLink?: string
   backgroundImage?: string
   backgroundVideo?: string
+  backgroundVideoUrl?: string
   videoPoster?: string
   backgroundType?: 'image' | 'video'
   size?: 'default' | 'small'
@@ -19,12 +20,15 @@ export default function Hero({
   ctaLink,
   backgroundImage,
   backgroundVideo,
+  backgroundVideoUrl,
   videoPoster,
   backgroundType = 'image',
   size = 'default',
 }: HeroProps) {
   const height = size === 'small' ? 'h-[50vh]' : 'h-[90vh]'
-  const hasVideo = backgroundType === 'video' && backgroundVideo
+  // Support both uploaded video and external URL
+  const videoSrc = backgroundVideo || backgroundVideoUrl
+  const hasVideo = backgroundType === 'video' && videoSrc
   const hasImage = backgroundImage && !hasVideo
 
   return (
@@ -47,7 +51,7 @@ export default function Hero({
             poster={videoPoster}
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src={backgroundVideo} type="video/mp4" />
+            <source src={videoSrc} type="video/mp4" />
           </video>
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/30" />
