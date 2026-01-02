@@ -1218,24 +1218,52 @@ Tasks are ordered by dependency - complete each task fully before moving to the 
 #### Task 15: Update Footer Component
 - **File:** `components/Footer.tsx`
 - **Action:** Replace route-based links with anchor links
-- **Changes to make (find and replace):**
+- **Complete Code:**
   ```typescript
-  // Replace these Link imports and usages with anchor tags:
+  export default function Footer() {
+    return (
+      <footer className="bg-moooi-charcoal text-white">
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div>
+              <h3 className="text-2xl font-display font-bold mb-4">Timber International</h3>
+              <p className="text-gray-400">
+                Premium wood products for industry partners
+              </p>
+            </div>
 
-  // FROM:
-  import Link from 'next/link'
-  <Link href="/about">About</Link>
-  <Link href="/manufacturing">Manufacturing</Link>
-  <Link href="/sustainability">Sustainability</Link>
-  <Link href="/products">Products</Link>
-  <Link href="/contact">Contact</Link>
+            <div>
+              <h4 className="font-bold mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li><a href="#about" className="text-gray-400 hover:text-moooi-gold transition-colors">About</a></li>
+                <li><a href="#manufacturing" className="text-gray-400 hover:text-moooi-gold transition-colors">Manufacturing</a></li>
+                <li><a href="#sustainability" className="text-gray-400 hover:text-moooi-gold transition-colors">Sustainability</a></li>
+              </ul>
+            </div>
 
-  // TO:
-  <a href="#about" className="hover:text-moooi-gold transition-colors">About</a>
-  <a href="#manufacturing" className="hover:text-moooi-gold transition-colors">Manufacturing</a>
-  <a href="#sustainability" className="hover:text-moooi-gold transition-colors">Sustainability</a>
-  <a href="#products" className="hover:text-moooi-gold transition-colors">Products</a>
-  <a href="#contact" className="hover:text-moooi-gold transition-colors">Contact</a>
+            <div>
+              <h4 className="font-bold mb-4">Products</h4>
+              <ul className="space-y-2">
+                <li><a href="#products" className="text-gray-400 hover:text-moooi-gold transition-colors">View All</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Connect</h4>
+              <ul className="space-y-2">
+                <li><a href="#contact" className="text-gray-400 hover:text-moooi-gold transition-colors">Contact</a></li>
+                <li><a href="mailto:sales@timber-international.com" className="text-gray-400 hover:text-moooi-gold transition-colors">sales@timber-international.com</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-gray-800 text-center text-gray-400">
+            <p>&copy; {new Date().getFullYear()} Timber International. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    )
+  }
   ```
 
 ---
