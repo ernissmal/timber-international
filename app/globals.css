@@ -53,3 +53,44 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #B8984D;
 }
+
+/* Scroll offset for sticky header (80px = h-20) */
+/* Use specific IDs to avoid affecting nested sections in blocks */
+#hero,
+#about,
+#oak-slabs,
+#warehouse,
+#products,
+#manufacturing,
+#sustainability,
+#contact {
+  scroll-margin-top: 5rem;
+}
+
+/* Skip navigation link for accessibility */
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  z-index: 100;
+  padding: 1rem;
+  background: white;
+  color: black;
+  text-decoration: underline;
+}
+
+.skip-nav:focus {
+  left: 0;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
