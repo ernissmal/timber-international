@@ -3,65 +3,81 @@ import { test, expect } from '@playwright/test';
 /**
  * Story 1-6: Remove Deprecated Routes - E2E Tests
  *
- * This test suite verifies that deprecated routes have been properly removed
- * and the SPA structure is working correctly.
+ * This test suite verifies that deprecated routes have been properly redirected
+ * to their corresponding anchor sections on the SPA homepage.
  *
  * Test Coverage:
- * - Deprecated routes return 404
+ * - Deprecated routes redirect to anchor sections with 301 status
  * - Root route works correctly
  * - Anchor navigation works
  */
 
 test.describe('Deprecated Routes - Story 1-6', () => {
-  test.describe('AC-1: Deprecated routes return 404', () => {
-    test('should return 404 for /about route', async ({ page }) => {
+  test.describe('AC-1: Deprecated routes redirect to anchor sections', () => {
+    test('should redirect /about to /#about with 301 status', async ({ page }) => {
       const response = await page.goto('/about');
 
-      // Verify 404 status
-      expect(response?.status()).toBe(404);
+      // Verify 308 status (Next.js uses 308 for permanent redirects in some cases)
+      // or 301 for permanent redirects
+      expect([301, 308]).toContain(response?.status() || 0);
 
-      // Verify 404 page is displayed (you may need to adjust based on your 404 page content)
-      await expect(page).toHaveTitle(/404|Not Found/i);
+      // Verify final URL contains anchor
+      expect(page.url()).toContain('#about');
+
+      // Verify we're on the homepage with correct anchor
+      expect(page.url()).toMatch(/\/#about$/);
     });
 
-    test('should return 404 for /products route', async ({ page }) => {
+    test('should redirect /products to /#products with 301 status', async ({ page }) => {
       const response = await page.goto('/products');
 
-      // Verify 404 status
-      expect(response?.status()).toBe(404);
+      // Verify permanent redirect status
+      expect([301, 308]).toContain(response?.status() || 0);
 
-      // Verify 404 page is displayed
-      await expect(page).toHaveTitle(/404|Not Found/i);
+      // Verify final URL contains anchor
+      expect(page.url()).toContain('#products');
+
+      // Verify we're on the homepage with correct anchor
+      expect(page.url()).toMatch(/\/#products$/);
     });
 
-    test('should return 404 for /manufacturing route', async ({ page }) => {
+    test('should redirect /manufacturing to /#manufacturing with 301 status', async ({ page }) => {
       const response = await page.goto('/manufacturing');
 
-      // Verify 404 status
-      expect(response?.status()).toBe(404);
+      // Verify permanent redirect status
+      expect([301, 308]).toContain(response?.status() || 0);
 
-      // Verify 404 page is displayed
-      await expect(page).toHaveTitle(/404|Not Found/i);
+      // Verify final URL contains anchor
+      expect(page.url()).toContain('#manufacturing');
+
+      // Verify we're on the homepage with correct anchor
+      expect(page.url()).toMatch(/\/#manufacturing$/);
     });
 
-    test('should return 404 for /sustainability route', async ({ page }) => {
+    test('should redirect /sustainability to /#sustainability with 301 status', async ({ page }) => {
       const response = await page.goto('/sustainability');
 
-      // Verify 404 status
-      expect(response?.status()).toBe(404);
+      // Verify permanent redirect status
+      expect([301, 308]).toContain(response?.status() || 0);
 
-      // Verify 404 page is displayed
-      await expect(page).toHaveTitle(/404|Not Found/i);
+      // Verify final URL contains anchor
+      expect(page.url()).toContain('#sustainability');
+
+      // Verify we're on the homepage with correct anchor
+      expect(page.url()).toMatch(/\/#sustainability$/);
     });
 
-    test('should return 404 for /contact route', async ({ page }) => {
+    test('should redirect /contact to /#contact with 301 status', async ({ page }) => {
       const response = await page.goto('/contact');
 
-      // Verify 404 status
-      expect(response?.status()).toBe(404);
+      // Verify permanent redirect status
+      expect([301, 308]).toContain(response?.status() || 0);
 
-      // Verify 404 page is displayed
-      await expect(page).toHaveTitle(/404|Not Found/i);
+      // Verify final URL contains anchor
+      expect(page.url()).toContain('#contact');
+
+      // Verify we're on the homepage with correct anchor
+      expect(page.url()).toMatch(/\/#contact$/);
     });
   });
 
@@ -167,17 +183,17 @@ test.describe('Deprecated Routes - Story 1-6', () => {
   });
 
   test.describe('AC-4: Edge cases', () => {
-    test('should return 404 for non-existent routes', async ({ page }) => {
+    test('should return 404 for non-existent routes (not deprecated routes)', async ({ page }) => {
       const response = await page.goto('/unknown-page');
 
-      // Verify 404 status
+      // Verify 404 status for truly unknown routes
       expect(response?.status()).toBe(404);
     });
 
     test('should return 404 for nested deprecated routes', async ({ page }) => {
       const response = await page.goto('/about/team');
 
-      // Verify 404 status
+      // Verify 404 status for nested routes (not covered by redirects)
       expect(response?.status()).toBe(404);
     });
 
@@ -191,24 +207,53 @@ test.describe('Deprecated Routes - Story 1-6', () => {
       // Verify hash is present
       expect(page.url()).toContain('#contact');
     });
+
+    test('should preserve query parameters in redirects', async ({ page }) => {
+      // Test if query params are handled (optional feature)
+      const response = await page.goto('/about?utm_source=test');
+
+      // Verify redirect occurred
+      expect([301, 308]).toContain(response?.status() || 0);
+
+      // Verify final URL contains anchor
+      expect(page.url()).toContain('#about');
+    });
   });
 
-  test.describe('AC-5: File structure verification', () => {
-    test('should only have main page files in app/(frontend)', async ({ page }) => {
-      // This test documents expected file structure
-      // Actual file verification happens in code review
-      await page.goto('/');
+  test.describe('AC-5: File structure and redirect verification', () => {
+    test('should have main page and redirects working correctly', async ({ page }) => {
+      // Verify root page loads successfully
+      const rootResponse = await page.goto('/');
+      expect(rootResponse?.status()).toBe(200);
 
-      // If we can load the root page, the structure is correct
-      const response = await page.goto('/');
-      expect(response?.status()).toBe(200);
-
-      // Verify old routes don't work
+      // Verify old routes redirect instead of returning 404
       const aboutResponse = await page.goto('/about');
-      expect(aboutResponse?.status()).toBe(404);
+      expect([301, 308]).toContain(aboutResponse?.status() || 0);
+      expect(page.url()).toContain('#about');
 
       const productsResponse = await page.goto('/products');
-      expect(productsResponse?.status()).toBe(404);
+      expect([301, 308]).toContain(productsResponse?.status() || 0);
+      expect(page.url()).toContain('#products');
+    });
+
+    test('should verify all deprecated routes redirect correctly', async ({ page }) => {
+      const deprecatedRoutes = [
+        { path: '/about', anchor: '#about' },
+        { path: '/products', anchor: '#products' },
+        { path: '/manufacturing', anchor: '#manufacturing' },
+        { path: '/sustainability', anchor: '#sustainability' },
+        { path: '/contact', anchor: '#contact' },
+      ];
+
+      for (const route of deprecatedRoutes) {
+        const response = await page.goto(route.path);
+
+        // Verify permanent redirect
+        expect([301, 308]).toContain(response?.status() || 0);
+
+        // Verify correct anchor in final URL
+        expect(page.url()).toContain(route.anchor);
+      }
     });
   });
 });

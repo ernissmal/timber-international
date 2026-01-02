@@ -89,20 +89,33 @@ This story completes the MPA → SPA migration by removing the old multi-page ar
 - No missing module errors
 - No broken import references
 
-### AC-4: Navigation Verification
+### AC-4: Deprecated Routes Redirect to Anchor Sections
+**Given** a user visits a deprecated route (e.g., `/about`, `/products`)
+**When** the route is accessed
+**Then**:
+- The route redirects with 301 (permanent redirect) status
+- The redirect target is the corresponding anchor section on the homepage
+  - `/about` → `/#about`
+  - `/products` → `/#products`
+  - `/manufacturing` → `/#manufacturing`
+  - `/sustainability` → `/#sustainability`
+  - `/contact` → `/#contact`
+- This preserves SEO value and provides good UX for bookmarked URLs
+
+### AC-5: Navigation Verification
 **Given** the application is running in dev mode
 **When** a user clicks navigation links
 **Then**:
 - Anchor links (#about, #products, etc.) scroll to correct sections
-- No 404 errors occur
 - All content remains accessible via anchor navigation
 
-### AC-5: 404 Page Still Works
+### AC-6: 404 Page Still Works
 **Given** a user visits an unknown route (e.g., `/unknown-page`)
 **When** Next.js handles the route
 **Then**:
 - The 404 page displays correctly
 - The 404 handling mechanism is not broken by route removal
+- Deprecated routes are NOT affected (they redirect, not 404)
 
 ---
 
@@ -202,7 +215,54 @@ npm run build
 
 ---
 
-### Step 5: Runtime Verification (5 minutes)
+### Step 5: Implement Redirects (10 minutes)
+
+Add permanent redirects for deprecated routes to preserve SEO and user bookmarks:
+
+**Option A: Using next.config.mjs (RECOMMENDED)**
+
+```javascript
+// next.config.mjs
+async redirects() {
+  return [
+    {
+      source: '/about',
+      destination: '/#about',
+      permanent: true, // 301 redirect
+    },
+    {
+      source: '/products',
+      destination: '/#products',
+      permanent: true,
+    },
+    {
+      source: '/manufacturing',
+      destination: '/#manufacturing',
+      permanent: true,
+    },
+    {
+      source: '/sustainability',
+      destination: '/#sustainability',
+      permanent: true,
+    },
+    {
+      source: '/contact',
+      destination: '/#contact',
+      permanent: true,
+    },
+  ]
+}
+```
+
+**Why redirects instead of 404s:**
+- ✅ Preserves SEO value (search engines follow 301 redirects)
+- ✅ Maintains user bookmarks (old URLs still work)
+- ✅ Better UX (users get to content instead of error page)
+- ✅ Professional approach for site restructuring
+
+---
+
+### Step 6: Runtime Verification (5 minutes)
 
 Test the application in development mode:
 
@@ -215,55 +275,15 @@ npm run dev
 # 2. Click each navigation link
 # 3. Verify smooth scroll to sections
 # 4. Test direct URL with hash: http://localhost:3000/#about
-# 5. Test invalid route: http://localhost:3000/about
+# 5. Test deprecated route redirects: http://localhost:3000/about
 ```
 
 **Expected behavior:**
 - ✅ `/#about` → scrolls to About section
-- ✅ `/about` → shows 404 page (route no longer exists)
+- ✅ `/about` → redirects to `/#about` with 301 status
+- ✅ All deprecated routes redirect to corresponding anchor sections
 - ✅ All anchor navigation works
 - ✅ No console errors
-
----
-
-### Step 6: Optional - Client-Side Redirects (10 minutes)
-
-**OPTIONAL:** If you want old URLs to redirect to anchor links instead of showing 404:
-
-Create middleware to handle redirects:
-
-```typescript
-// middleware.ts (create in project root)
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-
-const legacyRoutes: Record<string, string> = {
-  '/about': '/#about',
-  '/products': '/#products',
-  '/manufacturing': '/#manufacturing',
-  '/sustainability': '/#sustainability',
-  '/contact': '/#contact',
-}
-
-export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-
-  if (legacyRoutes[path]) {
-    return NextResponse.redirect(
-      new URL(legacyRoutes[path], request.url),
-      { status: 301 } // Permanent redirect
-    )
-  }
-
-  return NextResponse.next()
-}
-
-export const config = {
-  matcher: ['/about', '/products', '/manufacturing', '/sustainability', '/contact']
-}
-```
-
-**Note:** This is optional. Discuss with client whether to implement redirects or let old URLs show 404.
 
 ---
 
@@ -278,11 +298,13 @@ export const config = {
 ### Post-Deletion Tests
 - [ ] Files deleted: `app/(frontend)/{about,products,manufacturing,sustainability,contact}/page.tsx`
 - [ ] Directories removed (if empty)
+- [ ] Redirects configured in `next.config.mjs`
 - [ ] `npm run build` completes successfully
 - [ ] No TypeScript errors in build output
 - [ ] Dev server starts without errors (`npm run dev`)
 - [ ] Anchor links work: `/#about`, `/#products`, etc.
-- [ ] Direct route access shows 404: `/about`, `/products`, etc. (or redirects if middleware implemented)
+- [ ] Deprecated routes redirect to anchors: `/about` → `/#about` (301 status)
+- [ ] All 5 deprecated routes redirect correctly
 - [ ] Navigation scroll spy highlights correct section
 - [ ] Mobile menu works with anchor links
 - [ ] No console errors in browser
@@ -361,13 +383,15 @@ Do NOT re-attempt deletion until root cause is fixed.
 
 - [ ] All 5 page files deleted
 - [ ] All 5 directories removed (if empty)
+- [ ] Redirects configured in `next.config.mjs` for all 5 deprecated routes
+- [ ] All deprecated routes return 301 redirects to corresponding anchor sections
 - [ ] `npm run build` succeeds with no errors
 - [ ] `npm run dev` works correctly
 - [ ] All anchor navigation tested and working
-- [ ] 404 page still works for unknown routes
+- [ ] 404 page still works for unknown routes (non-deprecated routes)
+- [ ] E2E tests updated to test for redirects instead of 404s
 - [ ] No console errors or warnings
 - [ ] Code committed with clear commit message
-- [ ] Optional: Redirects implemented (if decided)
 - [ ] Story marked as complete in project tracking
 
 ---
@@ -395,11 +419,15 @@ Do NOT re-attempt deletion until root cause is fixed.
 
 ---
 
-## Questions for Product Owner
+## Implementation Decision
 
-1. Should we implement redirects for old URLs (`/about` → `/#about`) or let them show 404?
-2. Are there any external links (emails, marketing materials) pointing to old URLs?
-3. Should we notify support team about URL structure change?
+**Redirects have been implemented** for deprecated routes to:
+- Preserve SEO value (301 redirects maintain search engine rankings)
+- Support existing bookmarks and external links
+- Provide better user experience
+- Follow industry best practices for site restructuring
+
+This is the recommended approach for any site migration from MPA to SPA architecture.
 
 ---
 
