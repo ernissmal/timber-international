@@ -6,6 +6,9 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    'material-symbols-outlined',
+  ],
   theme: {
     extend: {
       colors: {
