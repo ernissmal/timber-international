@@ -167,7 +167,7 @@ Sanity CMS → GROQ Query → lib/sanity.ts (transform _type → __typename) →
 
 **Animation Pattern (Framer Motion):**
 ```typescript
-// Standard animation variant for section content
+// Standard animation for single content blocks (About, Products, etc.)
 const sectionAnimation = {
   initial: { opacity: 0, y: 40 },
   whileInView: { opacity: 1, y: 0 },
@@ -175,8 +175,21 @@ const sectionAnimation = {
   transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
 }
 
-// Usage: viewport.once ensures animation fires only once per session
-// viewport.margin triggers slightly before element enters view
+// Stagger pattern for grids (OakSlabs, Warehouse feature cards)
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+}
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+}
+
+// Usage notes:
+// - viewport.once ensures animation fires only once per session
+// - viewport.margin triggers slightly before element enters view
+// - Use stagger pattern for grids/lists, inline props for single blocks
+// - Both patterns use same ease curve [0.16, 1, 0.3, 1] for consistency
 ```
 
 **IntersectionObserver Configuration Rationale:**
