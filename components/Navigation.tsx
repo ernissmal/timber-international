@@ -87,11 +87,24 @@ export default function Navigation() {
 
   // Handle navigation click
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+
     // Close mobile menu immediately
     setIsOpen(false)
 
     // Update active section immediately for responsiveness
-    setActiveSection(href.slice(1))
+    const sectionId = href.slice(1)
+    setActiveSection(sectionId)
+    activeSectionRef.current = sectionId
+
+    // Scroll to section after a brief delay to allow menu to close
+    setTimeout(() => {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+        window.history.replaceState(null, '', href)
+      }
+    }, 50)
   }, [])
 
   // Close mobile menu on escape key
