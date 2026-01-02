@@ -46,16 +46,11 @@ function DynamicIcon({ name, className }: { name: string; className?: string }) 
 }
 
 export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
-  // Auto-detect columns based on item count if not explicitly set
-  const itemCount = data.items?.length || 0
-  const autoColumns = itemCount === 4 ? '4' : itemCount === 2 ? '2' : '3'
-  const columns = data.columns || autoColumns
+  // Max 4 items per row, each taking 25% of available space
+  const itemCount = Math.min(data.items?.length || 0, 4)
 
-  const gridCols = {
-    '2': 'sm:grid-cols-2',
-    '3': 'sm:grid-cols-2 lg:grid-cols-3',
-    '4': 'sm:grid-cols-2 lg:grid-cols-4',
-  }[columns] || 'sm:grid-cols-2 lg:grid-cols-3'
+  // Always use 4-column grid on large screens for consistent 25% width per item
+  const gridCols = 'sm:grid-cols-2 lg:grid-cols-4'
 
   return (
     <section className="content-block content-wide py-32">
@@ -71,7 +66,7 @@ export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
         </motion.h2>
       )}
 
-      <div className={`grid ${gridCols} gap-12`}>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
         {data.items?.map((item, index) => {
           if (!item) return null
 

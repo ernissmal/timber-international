@@ -33,8 +33,8 @@ export default function ContactSection({ data }: ContactSectionProps) {
             </p>
           </motion.div>
 
-          {/* Contact Info Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {/* Contact Info Grid - max 4 items, each 25% width */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
