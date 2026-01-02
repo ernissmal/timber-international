@@ -25,6 +25,12 @@ export default function StatsBlock({ data }: StatsBlockProps) {
 
   const isDark = data.backgroundColor === 'black'
 
+  // Auto-detect grid columns based on item count
+  const itemCount = data.items?.length || 0
+  const gridCols = itemCount === 3 ? 'sm:grid-cols-3' :
+                   itemCount === 2 ? 'sm:grid-cols-2' :
+                   'sm:grid-cols-2 lg:grid-cols-4'
+
   return (
     <section className={`content-block ${bgColor} py-24`}>
       <div className="content-wide">
@@ -40,7 +46,7 @@ export default function StatsBlock({ data }: StatsBlockProps) {
           </motion.h2>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className={`grid grid-cols-1 ${gridCols} gap-8`}>
           {data.items?.map((item, index) => {
             if (!item) return null
 

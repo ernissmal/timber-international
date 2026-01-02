@@ -32,6 +32,34 @@
   }
 }
 
+@layer components {
+  /* Content layout classes */
+  .content-block {
+    @apply px-6 md:px-12 lg:px-20;
+  }
+
+  .content-wide {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    @apply transition-transform duration-300;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-2;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300;
+  }
+
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

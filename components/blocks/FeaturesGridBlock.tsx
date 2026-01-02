@@ -46,7 +46,11 @@ function DynamicIcon({ name, className }: { name: string; className?: string }) 
 }
 
 export default function FeaturesGridBlock({ data }: FeaturesGridBlockProps) {
-  const columns = data.columns || '3'
+  // Auto-detect columns based on item count if not explicitly set
+  const itemCount = data.items?.length || 0
+  const autoColumns = itemCount === 4 ? '4' : itemCount === 2 ? '2' : '3'
+  const columns = data.columns || autoColumns
+
   const gridCols = {
     '2': 'sm:grid-cols-2',
     '3': 'sm:grid-cols-2 lg:grid-cols-3',
