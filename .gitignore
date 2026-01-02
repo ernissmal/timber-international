@@ -5,6 +5,11 @@
 
 # Testing
 /coverage
+/playwright-report/
+/playwright-screenshots/
+
+/test-results/
+**/*-snapshots/
 
 # Next.js
 /.next/
