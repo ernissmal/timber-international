@@ -11,7 +11,12 @@
     "sanity:dev": "sanity dev",
     "sanity:deploy": "sanity deploy",
     "migrate:sanity": "npx ts-node --esm scripts/migrate-to-sanity.ts",
-    "verify:sections": "npx tsx scripts/verify-spa-sections.ts"
+    "verify:sections": "npx tsx scripts/verify-spa-sections.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -34,7 +39,8 @@
     "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
-    "@types/node": "^20.14.9",
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^20.19.27",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
